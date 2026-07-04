@@ -1,46 +1,83 @@
 package com.careerforage.backend.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "students")
 public class Student {
+
+    public Student() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String fullName;
 
     private String email;
 
+    private String phone;
+
+    private String college;
+
     private String branch;
-     
-   
 
-    public void setName(String name) {
-        this.name = name;
-      
+    private Integer semester;
+
+    public Long getId() {
+        return id;
     }
 
-    public String getName() {
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-        return name;
+    public String getFullName() {
+        return fullName;
     }
-    public void setEmail(String email) {
-        this.email = email;
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
+
     public String getEmail() {
         return email;
     }
-    public void setBranch(String branch) {
-        this.branch = branch;
+
+    public void setEmail(String email) {
+        this.email = email;
     }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getCollege() {
+        return college;
+    }
+
+    public void setCollege(String college) {
+        this.college = college;
+    }
+
     public String getBranch() {
         return branch;
     }
 
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
 
+    public Integer getSemester() {
+        return semester;
+    }
+
+    public void setSemester(Integer semester) {
+        this.semester = semester;
+    }
 }

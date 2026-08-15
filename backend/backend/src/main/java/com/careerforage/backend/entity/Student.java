@@ -1,4 +1,4 @@
-package com.careerforage.backend.entity;
+package com.careerforge.backend.entity;
 
 import jakarta.persistence.*;
 

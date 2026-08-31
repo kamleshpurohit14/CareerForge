@@ -1,6 +1,7 @@
 package com.careerforge.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "students")
@@ -13,17 +14,34 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Full name is required")
     private String fullName;
 
+    @NotBlank(message = "Email is required")
+    @Email(message = "Enter a valid email")
     private String email;
 
+    @NotBlank(message = "Phone is required")
     private String phone;
 
+    @NotBlank(message = "College is required")
     private String college;
 
+    @NotBlank(message = "Branch is required")
     private String branch;
 
+    @NotNull(message = "Semester is required")
+    @Min(value = 1, message = "Semester must be at least 1")
+    @Max(value = 8, message = "Semester cannot be greater than 8")
     private Integer semester;
+
+    @NotNull(message = "CGPA is required")
+    @DecimalMin(value = "0.0", message = "CGPA cannot be less than 0")
+    @DecimalMax(value = "10.0", message = "CGPA cannot be greater than 10")
+    private Double cgpa;
+
+    @NotBlank(message = "Career goal is required")
+    private String careerGoal;
 
     public Long getId() {
         return id;
@@ -79,5 +97,21 @@ public class Student {
 
     public void setSemester(Integer semester) {
         this.semester = semester;
+    }
+
+    public Double getCgpa() {
+        return cgpa;
+    }
+
+    public void setCgpa(Double cgpa) {
+        this.cgpa = cgpa;
+    }
+
+    public String getCareerGoal() {
+        return careerGoal;
+    }
+
+    public void setCareerGoal(String careerGoal) {
+        this.careerGoal = careerGoal;
     }
 }

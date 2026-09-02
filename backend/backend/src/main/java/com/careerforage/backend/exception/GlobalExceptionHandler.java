@@ -45,6 +45,7 @@ public class GlobalExceptionHandler {
         exception.getConstraintViolations()
                 .forEach(error -> errors.put(
                         error.getPropertyPath().toString(),
+                  
                         error.getMessage()
                 ));
 

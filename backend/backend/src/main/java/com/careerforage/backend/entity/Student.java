@@ -1,7 +1,11 @@
 package com.careerforge.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "students")
@@ -42,6 +46,22 @@ public class Student {
 
     @NotBlank(message = "Career goal is required")
     private String careerGoal;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("student-education")
+    private List<Education> education = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("student-skills")
+    private List<Skill> skills = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("student-projects")
+    private List<Project> projects = new ArrayList<>();
+
+    @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("student-assessment")
+    private CareerAssessment careerAssessment;
 
     public Long getId() {
         return id;
@@ -114,4 +134,37 @@ public class Student {
     public void setCareerGoal(String careerGoal) {
         this.careerGoal = careerGoal;
     }
+
+    public List<Education> getEducation() {
+        return education;
+    }
+
+    public void setEducation(List<Education> education) {
+        this.education = education;
+    }
+
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
+
+    public CareerAssessment getCareerAssessment() {
+        return careerAssessment;
+    }
+
+    public void setCareerAssessment(CareerAssessment careerAssessment) {
+        this.careerAssessment = careerAssessment;
+    }
+
 }

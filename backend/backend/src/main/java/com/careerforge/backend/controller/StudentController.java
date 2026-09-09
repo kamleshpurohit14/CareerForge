@@ -30,6 +30,11 @@ public class StudentController {
         return studentService.getStudentById(id);
     }
 
+    @GetMapping("/email/{email}")
+    public Student getStudentByEmail(@PathVariable String email) {
+        return studentService.getStudentByEmail(email);
+    }
+
     @PutMapping("/{id}")
     public Student updateStudent(@PathVariable Long id, @Valid @RequestBody Student student) {
         return studentService.updateStudent(id, student);

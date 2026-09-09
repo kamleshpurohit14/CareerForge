@@ -29,6 +29,13 @@ public class StudentService {
                 ));
     }
 
+    public Student getStudentByEmail(String email) {
+        return studentRepository.findByEmail(email)
+                .orElseThrow(() -> new StudentNotFoundException(
+                        "Student not found with email: " + email
+                ));
+    }
+
     public Student updateStudent(Long id, Student student) {
         Student existingStudent = studentRepository.findById(id)
                 .orElseThrow(() -> new StudentNotFoundException(

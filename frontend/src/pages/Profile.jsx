@@ -18,9 +18,27 @@ function Profile() {
     careerGoal: ''
   })
 
+  const [education, setEducation] = useState([])
+  const [educationForm, setEducationForm] = useState({
+    degree: '',
+    institution: '',
+    specialization: '',
+    passingYear: ''
+  })
+
+  const [skills, setSkills] = useState([])
+  const [skillForm, setSkillForm] = useState({
+    name: '',
+    level: ''
+  })
+
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [educationSaving, setEducationSaving] = useState(false)
+  const [skillSaving, setSkillSaving] = useState(false)
+  const [editingEducationId, setEditingEducationId] = useState(null)
+  const [editingSkillId, setEditingSkillId] = useState(null)
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -33,6 +51,7 @@ function Profile() {
         const student = await api.getStudentByEmail(email)
 
         setStudentId(student.id)
+
         setFormData({
           fullName: student.fullName || '',
           email: student.email || email,
@@ -43,6 +62,9 @@ function Profile() {
           cgpa: student.cgpa || '',
           careerGoal: student.careerGoal || ''
         })
+
+        setEducation(student.education || [])
+        setSkills(student.skills || [])
       } catch (err) {
         if (!err.message.toLowerCase().includes('student not found')) {
           setError(err.message || 'Failed to load profile')
@@ -58,6 +80,20 @@ function Profile() {
   const handleChange = (e) => {
     setFormData({
       ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleEducationChange = (e) => {
+    setEducationForm({
+      ...educationForm,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleSkillChange = (e) => {
+    setSkillForm({
+      ...skillForm,
       [e.target.name]: e.target.value
     })
   }
@@ -86,6 +122,189 @@ function Profile() {
       setError(err.message || 'Failed to save profile')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleAddEducation = async () => {
+    if (!studentId) {
+      setError('Please save your profile before adding education.')
+      return
+    }
+
+    setError('')
+    setEducationSaving(true)
+
+    try {
+      const educationData = {
+        ...educationForm,
+        passingYear: Number(educationForm.passingYear)
+      }
+
+      if (editingEducationId) {
+        const updatedEducation = await api.updateEducation(
+          editingEducationId,
+          educationData
+        )
+
+        setEducation(
+          education.map((item) =>
+            item.id === editingEducationId ? updatedEducation : item
+          )
+        )
+
+        setEditingEducationId(null)
+      } else {
+        const createdEducation = await api.createEducation(
+          studentId,
+          educationData
+        )
+
+        setEducation([...education, createdEducation])
+      }
+
+      setEducationForm({
+        degree: '',
+        institution: '',
+        specialization: '',
+        passingYear: ''
+      })
+    } catch (err) {
+      setError(err.message || 'Failed to save education')
+    } finally {
+      setEducationSaving(false)
+    }
+  }
+
+  const handleEditEducation = (item) => {
+    setEditingEducationId(item.id)
+
+    setEducationForm({
+      degree: item.degree || '',
+      institution: item.institution || '',
+      specialization: item.specialization || '',
+      passingYear: item.passingYear || ''
+    })
+
+    setError('')
+  }
+
+  const handleCancelEducationEdit = () => {
+    setEditingEducationId(null)
+
+    setEducationForm({
+      degree: '',
+      institution: '',
+      specialization: '',
+      passingYear: ''
+    })
+
+    setError('')
+  }
+
+  const handleDeleteEducation = async (id) => {
+    setError('')
+
+    try {
+      await api.deleteEducation(id)
+
+      setEducation(education.filter((item) => item.id !== id))
+
+      if (editingEducationId === id) {
+        handleCancelEducationEdit()
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to delete education')
+    }
+  }
+
+  const handleAddSkill = async () => {
+    if (!studentId) {
+      setError('Please save your profile before adding skills.')
+      return
+    }
+
+    if (!skillForm.name.trim() || !skillForm.level) {
+      setError('Please enter skill name and select skill level.')
+      return
+    }
+
+    setError('')
+    setSkillSaving(true)
+
+    try {
+      const skillData = {
+        name: skillForm.name,
+        level: skillForm.level
+      }
+
+      if (editingSkillId) {
+        const updatedSkill = await api.updateSkill(
+          editingSkillId,
+          skillData
+        )
+
+        setSkills(
+          skills.map((item) =>
+            item.id === editingSkillId ? updatedSkill : item
+          )
+        )
+
+        setEditingSkillId(null)
+      } else {
+        const createdSkill = await api.createSkill(
+          studentId,
+          skillData
+        )
+
+        setSkills([...skills, createdSkill])
+      }
+
+      setSkillForm({
+        name: '',
+        level: ''
+      })
+    } catch (err) {
+      setError(err.message || 'Failed to save skill')
+    } finally {
+      setSkillSaving(false)
+    }
+  }
+
+  const handleEditSkill = (item) => {
+    setEditingSkillId(item.id)
+
+    setSkillForm({
+      name: item.name || '',
+      level: item.level || ''
+    })
+
+    setError('')
+  }
+
+  const handleCancelSkillEdit = () => {
+    setEditingSkillId(null)
+
+    setSkillForm({
+      name: '',
+      level: ''
+    })
+
+    setError('')
+  }
+
+  const handleDeleteSkill = async (id) => {
+    setError('')
+
+    try {
+      await api.deleteSkill(id)
+
+      setSkills(skills.filter((item) => item.id !== id))
+
+      if (editingSkillId === id) {
+        handleCancelSkillEdit()
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to delete skill')
     }
   }
 
@@ -244,6 +463,221 @@ function Profile() {
           <div className="profile-section">
             <div className="profile-section-heading">
               <span>03</span>
+              <div>
+                <h2>Education</h2>
+                <p>Add your educational qualifications.</p>
+              </div>
+            </div>
+
+            {education.length > 0 && (
+              <div className="education-list">
+                {education.map((item) => (
+                  <div key={item.id} className="education-item">
+                    <div>
+                      <h3>{item.degree}</h3>
+                      <p>{item.institution}</p>
+                      <span>
+                        {item.specialization} · {item.passingYear}
+                      </span>
+                    </div>
+
+                    <div className="education-actions">
+                      <button
+                        type="button"
+                        onClick={() => handleEditEducation(item)}
+                        className="education-edit"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteEducation(item.id)}
+                        className="education-delete"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="profile-form-grid">
+              <label>
+                Degree
+                <input
+                  type="text"
+                  name="degree"
+                  value={educationForm.degree}
+                  onChange={handleEducationChange}
+                  placeholder="e.g. B.Tech"
+                />
+              </label>
+
+              <label>
+                Institution
+                <input
+                  type="text"
+                  name="institution"
+                  value={educationForm.institution}
+                  onChange={handleEducationChange}
+                  placeholder="Enter institution name"
+                />
+              </label>
+
+              <label>
+                Specialization
+                <input
+                  type="text"
+                  name="specialization"
+                  value={educationForm.specialization}
+                  onChange={handleEducationChange}
+                  placeholder="e.g. Information Technology"
+                />
+              </label>
+
+              <label>
+                Passing Year
+                <input
+                  type="number"
+                  name="passingYear"
+                  value={educationForm.passingYear}
+                  onChange={handleEducationChange}
+                  placeholder="e.g. 2027"
+                  min="1950"
+                  max="2100"
+                />
+              </label>
+            </div>
+
+            <div className="education-form-actions">
+              <button
+                type="button"
+                onClick={handleAddEducation}
+                className="auth-button education-add"
+                disabled={educationSaving}
+              >
+                {educationSaving
+                  ? editingEducationId
+                    ? 'Updating Education...'
+                    : 'Adding Education...'
+                  : editingEducationId
+                    ? 'Update Education'
+                    : 'Add Education'}
+              </button>
+
+              {editingEducationId && (
+                <button
+                  type="button"
+                  onClick={handleCancelEducationEdit}
+                  className="education-cancel"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="profile-section">
+            <div className="profile-section-heading">
+              <span>04</span>
+              <div>
+                <h2>Skills</h2>
+                <p>Add the technical and professional skills you have.</p>
+              </div>
+            </div>
+
+            {skills.length > 0 && (
+              <div className="education-list">
+                {skills.map((item) => (
+                  <div key={item.id} className="education-item">
+                    <div>
+                      <h3>{item.name}</h3>
+                      <span>{item.level}</span>
+                    </div>
+
+                    <div className="education-actions">
+                      <button
+                        type="button"
+                        onClick={() => handleEditSkill(item)}
+                        className="education-edit"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSkill(item.id)}
+                        className="education-delete"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="profile-form-grid">
+              <label>
+                Skill Name
+                <input
+                  type="text"
+                  name="name"
+                  value={skillForm.name}
+                  onChange={handleSkillChange}
+                  placeholder="e.g. Java"
+                />
+              </label>
+
+              <label>
+                Skill Level
+                <select
+                  name="level"
+                  value={skillForm.level}
+                  onChange={handleSkillChange}
+                >
+                  <option value="">Select skill level</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                  <option value="Expert">Expert</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="education-form-actions">
+              <button
+                type="button"
+                onClick={handleAddSkill}
+                className="auth-button education-add"
+                disabled={skillSaving}
+              >
+                {skillSaving
+                  ? editingSkillId
+                    ? 'Updating Skill...'
+                    : 'Adding Skill...'
+                  : editingSkillId
+                    ? 'Update Skill'
+                    : 'Add Skill'}
+              </button>
+
+              {editingSkillId && (
+                <button
+                  type="button"
+                  onClick={handleCancelSkillEdit}
+                  className="education-cancel"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="profile-section">
+            <div className="profile-section-heading">
+              <span>05</span>
               <div>
                 <h2>Career Goal</h2>
                 <p>Tell us where you want your career to go.</p>

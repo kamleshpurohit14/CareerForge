@@ -782,3 +782,73 @@
     text-align: center;
   }
 }
+
+.education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.education-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 24px;
+  background: #f8f9fc;
+  border: 1px solid #e1e4eb;
+  border-radius: 16px;
+}
+
+.education-item h3 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.education-item p {
+  margin: 0 0 7px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.education-item span {
+  color: #667085;
+  font-size: 13px;
+}
+
+.education-delete {
+  border: 1px solid #d8dce5;
+  border-radius: 10px;
+  padding: 10px 16px;
+  background: #ffffff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.education-delete:hover {
+  border-color: #4053ff;
+  color: #4053ff;
+}
+
+.education-add {
+  width: 100%;
+  margin-top: 24px;
+}
+
+@media (max-width: 700px) {
+  .education-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .education-delete {
+    width: 100%;
+  }
+}

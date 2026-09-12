@@ -97,23 +97,215 @@ export const api = {
   },
 
   updateStudent: async (id, student) => {
-  const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token')
 
-  const response = await fetch(`${API_BASE_URL}/students/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(student)
-  })
+    const response = await fetch(`${API_BASE_URL}/students/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(student)
+    })
 
-  const data = await response.json()
+    const data = await response.json()
 
-  if (!response.ok) {
-    throw new Error(data.message || 'Failed to update profile')
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update profile')
+    }
+
+    return data
+  },
+
+  createEducation: async (studentId, education) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}/education`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(education)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to create education')
+    }
+
+    return data
+  },
+
+  getAllEducation: async () => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/education`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch education')
+    }
+
+    return data
+  },
+
+  getEducationById: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/education/${id}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch education')
+    }
+
+    return data
+  },
+
+  updateEducation: async (id, education) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/education/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(education)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update education')
+    }
+
+    return data
+  },
+
+  deleteEducation: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/education/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Failed to delete education')
+    }
+  },
+
+  createSkill: async (studentId, skill) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}/skills`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(skill)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to create skill')
+    }
+
+    return data
+  },
+
+  getAllSkills: async () => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/skills`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch skills')
+    }
+
+    return data
+  },
+
+  getSkillById: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/skills/${id}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch skill')
+    }
+
+    return data
+  },
+
+  updateSkill: async (id, skill) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/skills/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(skill)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update skill')
+    }
+
+    return data
+  },
+
+  deleteSkill: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/skills/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Failed to delete skill')
+    }
   }
-
-  return data
-}
 }

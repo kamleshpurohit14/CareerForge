@@ -59,6 +59,10 @@ public class Student {
     @JsonManagedReference("student-projects")
     private List<Project> projects = new ArrayList<>();
 
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("student-certifications")
+    private List<Certification> certifications = new ArrayList<>();
+
     @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("student-assessment")
     private CareerAssessment careerAssessment;
@@ -157,6 +161,14 @@ public class Student {
 
     public void setProjects(List<Project> projects) {
         this.projects = projects;
+    }
+
+    public List<Certification> getCertifications() {
+        return certifications;
+    }
+
+    public void setCertifications(List<Certification> certifications) {
+        this.certifications = certifications;
     }
 
     public CareerAssessment getCareerAssessment() {

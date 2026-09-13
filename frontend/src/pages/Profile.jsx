@@ -32,13 +32,24 @@ function Profile() {
     level: ''
   })
 
+  const [projects, setProjects] = useState([])
+  const [projectForm, setProjectForm] = useState({
+    title: '',
+    description: '',
+    technologies: '',
+    githubUrl: '',
+    liveUrl: ''
+  })
+
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [educationSaving, setEducationSaving] = useState(false)
   const [skillSaving, setSkillSaving] = useState(false)
+  const [projectSaving, setProjectSaving] = useState(false)
   const [editingEducationId, setEditingEducationId] = useState(null)
   const [editingSkillId, setEditingSkillId] = useState(null)
+  const [editingProjectId, setEditingProjectId] = useState(null)
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -65,6 +76,9 @@ function Profile() {
 
         setEducation(student.education || [])
         setSkills(student.skills || [])
+
+        const studentProjects = await api.getProjectsByStudentId(student.id)
+        setProjects(studentProjects || [])
       } catch (err) {
         if (!err.message.toLowerCase().includes('student not found')) {
           setError(err.message || 'Failed to load profile')
@@ -94,6 +108,13 @@ function Profile() {
   const handleSkillChange = (e) => {
     setSkillForm({
       ...skillForm,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleProjectChange = (e) => {
+    setProjectForm({
+      ...projectForm,
       [e.target.name]: e.target.value
     })
   }
@@ -305,6 +326,109 @@ function Profile() {
       }
     } catch (err) {
       setError(err.message || 'Failed to delete skill')
+    }
+  }
+
+  const handleAddProject = async () => {
+    if (!studentId) {
+      setError('Please save your profile before adding projects.')
+      return
+    }
+
+    if (!projectForm.title.trim() || !projectForm.description.trim()) {
+      setError('Please enter project title and description.')
+      return
+    }
+
+    setError('')
+    setProjectSaving(true)
+
+    try {
+      const projectData = {
+        title: projectForm.title,
+        description: projectForm.description,
+        technologies: projectForm.technologies,
+        githubUrl: projectForm.githubUrl,
+        liveUrl: projectForm.liveUrl
+      }
+
+      if (editingProjectId) {
+        const updatedProject = await api.updateProject(
+          editingProjectId,
+          projectData
+        )
+
+        setProjects(
+          projects.map((item) =>
+            item.id === editingProjectId ? updatedProject : item
+          )
+        )
+
+        setEditingProjectId(null)
+      } else {
+        const createdProject = await api.createProject(
+          studentId,
+          projectData
+        )
+
+        setProjects([...projects, createdProject])
+      }
+
+      setProjectForm({
+        title: '',
+        description: '',
+        technologies: '',
+        githubUrl: '',
+        liveUrl: ''
+      })
+    } catch (err) {
+      setError(err.message || 'Failed to save project')
+    } finally {
+      setProjectSaving(false)
+    }
+  }
+
+  const handleEditProject = (item) => {
+    setEditingProjectId(item.id)
+
+    setProjectForm({
+      title: item.title || '',
+      description: item.description || '',
+      technologies: item.technologies || '',
+      githubUrl: item.githubUrl || '',
+      liveUrl: item.liveUrl || ''
+    })
+
+    setError('')
+  }
+
+  const handleCancelProjectEdit = () => {
+    setEditingProjectId(null)
+
+    setProjectForm({
+      title: '',
+      description: '',
+      technologies: '',
+      githubUrl: '',
+      liveUrl: ''
+    })
+
+    setError('')
+  }
+
+  const handleDeleteProject = async (id) => {
+    setError('')
+
+    try {
+      await api.deleteProject(id)
+
+      setProjects(projects.filter((item) => item.id !== id))
+
+      if (editingProjectId === id) {
+        handleCancelProjectEdit()
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to delete project')
     }
   }
 
@@ -678,6 +802,156 @@ function Profile() {
           <div className="profile-section">
             <div className="profile-section-heading">
               <span>05</span>
+              <div>
+                <h2>Projects</h2>
+                <p>Showcase the projects you have built.</p>
+              </div>
+            </div>
+
+            {projects.length > 0 && (
+              <div className="education-list">
+                {projects.map((item) => (
+                  <div key={item.id} className="education-item">
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>{item.description}</p>
+                      {item.technologies && (
+                        <span>{item.technologies}</span>
+                      )}
+
+                      <div>
+                        {item.githubUrl && (
+                          <a
+                            href={item.githubUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            GitHub
+                          </a>
+                        )}
+
+                        {item.liveUrl && (
+                          <a
+                            href={item.liveUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Live Demo
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="education-actions">
+                      <button
+                        type="button"
+                        onClick={() => handleEditProject(item)}
+                        className="education-edit"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProject(item.id)}
+                        className="education-delete"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="profile-form-grid">
+              <label>
+                Project Title
+                <input
+                  type="text"
+                  name="title"
+                  value={projectForm.title}
+                  onChange={handleProjectChange}
+                  placeholder="e.g. CareerForge"
+                />
+              </label>
+
+              <label>
+                Technologies
+                <input
+                  type="text"
+                  name="technologies"
+                  value={projectForm.technologies}
+                  onChange={handleProjectChange}
+                  placeholder="e.g. Java, Spring Boot, React"
+                />
+              </label>
+
+              <label>
+                GitHub URL
+                <input
+                  type="url"
+                  name="githubUrl"
+                  value={projectForm.githubUrl}
+                  onChange={handleProjectChange}
+                  placeholder="https://github.com/username/project"
+                />
+              </label>
+
+              <label>
+                Live Project URL
+                <input
+                  type="url"
+                  name="liveUrl"
+                  value={projectForm.liveUrl}
+                  onChange={handleProjectChange}
+                  placeholder="https://example.com"
+                />
+              </label>
+            </div>
+
+            <label>
+              Project Description
+              <textarea
+                name="description"
+                value={projectForm.description}
+                onChange={handleProjectChange}
+                placeholder="Describe your project"
+                rows="5"
+              />
+            </label>
+
+            <div className="education-form-actions">
+              <button
+                type="button"
+                onClick={handleAddProject}
+                className="auth-button education-add"
+                disabled={projectSaving}
+              >
+                {projectSaving
+                  ? editingProjectId
+                    ? 'Updating Project...'
+                    : 'Adding Project...'
+                  : editingProjectId
+                    ? 'Update Project'
+                    : 'Add Project'}
+              </button>
+
+              {editingProjectId && (
+                <button
+                  type="button"
+                  onClick={handleCancelProjectEdit}
+                  className="education-cancel"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="profile-section">
+            <div className="profile-section-heading">
+              <span>06</span>
               <div>
                 <h2>Career Goal</h2>
                 <p>Tell us where you want your career to go.</p>

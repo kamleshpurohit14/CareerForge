@@ -307,5 +307,82 @@ export const api = {
       const data = await response.json()
       throw new Error(data.message || 'Failed to delete skill')
     }
+  },
+
+  createProject: async (studentId, project) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}/projects`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(project)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to create project')
+    }
+
+    return data
+  },
+
+  getProjectsByStudentId: async (studentId) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}/projects`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch projects')
+    }
+
+    return data
+  },
+
+  updateProject: async (id, project) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(project)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update project')
+    }
+
+    return data
+  },
+
+  deleteProject: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Failed to delete project')
+    }
   }
 }

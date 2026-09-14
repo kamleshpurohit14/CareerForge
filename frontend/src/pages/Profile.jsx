@@ -41,15 +41,26 @@ function Profile() {
     liveUrl: ''
   })
 
+  const [certifications, setCertifications] = useState([])
+  const [certificationForm, setCertificationForm] = useState({
+    name: '',
+    issuingOrganization: '',
+    issueDate: '',
+    credentialId: '',
+    credentialUrl: ''
+  })
+
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [educationSaving, setEducationSaving] = useState(false)
   const [skillSaving, setSkillSaving] = useState(false)
   const [projectSaving, setProjectSaving] = useState(false)
+  const [certificationSaving, setCertificationSaving] = useState(false)
   const [editingEducationId, setEditingEducationId] = useState(null)
   const [editingSkillId, setEditingSkillId] = useState(null)
   const [editingProjectId, setEditingProjectId] = useState(null)
+  const [editingCertificationId, setEditingCertificationId] = useState(null)
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -79,6 +90,11 @@ function Profile() {
 
         const studentProjects = await api.getProjectsByStudentId(student.id)
         setProjects(studentProjects || [])
+
+        const studentCertifications =
+          await api.getCertificationsByStudentId(student.id)
+
+        setCertifications(studentCertifications || [])
       } catch (err) {
         if (!err.message.toLowerCase().includes('student not found')) {
           setError(err.message || 'Failed to load profile')
@@ -115,6 +131,13 @@ function Profile() {
   const handleProjectChange = (e) => {
     setProjectForm({
       ...projectForm,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleCertificationChange = (e) => {
+    setCertificationForm({
+      ...certificationForm,
       [e.target.name]: e.target.value
     })
   }
@@ -429,6 +452,116 @@ function Profile() {
       }
     } catch (err) {
       setError(err.message || 'Failed to delete project')
+    }
+  }
+
+  const handleAddCertification = async () => {
+    if (!studentId) {
+      setError('Please save your profile before adding certifications.')
+      return
+    }
+
+    if (
+      !certificationForm.name.trim() ||
+      !certificationForm.issuingOrganization.trim()
+    ) {
+      setError('Please enter certification name and issuing organization.')
+      return
+    }
+
+    setError('')
+    setCertificationSaving(true)
+
+    try {
+      const certificationData = {
+        name: certificationForm.name,
+        issuingOrganization: certificationForm.issuingOrganization,
+        issueDate: certificationForm.issueDate,
+        credentialId: certificationForm.credentialId,
+        credentialUrl: certificationForm.credentialUrl
+      }
+
+      if (editingCertificationId) {
+        const updatedCertification = await api.updateCertification(
+          editingCertificationId,
+          certificationData
+        )
+
+        setCertifications(
+          certifications.map((item) =>
+            item.id === editingCertificationId
+              ? updatedCertification
+              : item
+          )
+        )
+
+        setEditingCertificationId(null)
+      } else {
+        const createdCertification = await api.createCertification(
+          studentId,
+          certificationData
+        )
+
+        setCertifications([...certifications, createdCertification])
+      }
+
+      setCertificationForm({
+        name: '',
+        issuingOrganization: '',
+        issueDate: '',
+        credentialId: '',
+        credentialUrl: ''
+      })
+    } catch (err) {
+      setError(err.message || 'Failed to save certification')
+    } finally {
+      setCertificationSaving(false)
+    }
+  }
+
+  const handleEditCertification = (item) => {
+    setEditingCertificationId(item.id)
+
+    setCertificationForm({
+      name: item.name || '',
+      issuingOrganization: item.issuingOrganization || '',
+      issueDate: item.issueDate || '',
+      credentialId: item.credentialId || '',
+      credentialUrl: item.credentialUrl || ''
+    })
+
+    setError('')
+  }
+
+  const handleCancelCertificationEdit = () => {
+    setEditingCertificationId(null)
+
+    setCertificationForm({
+      name: '',
+      issuingOrganization: '',
+      issueDate: '',
+      credentialId: '',
+      credentialUrl: ''
+    })
+
+    setError('')
+  }
+
+  const handleDeleteCertification = async (id) => {
+    setError('')
+
+    try {
+      await api.deleteCertification(id)
+
+      setCertifications(
+        certifications.filter((item) => item.id !== id)
+      )
+
+      if (editingCertificationId === id) {
+        handleCancelCertificationEdit()
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to delete certification')
     }
   }
 
@@ -815,6 +948,7 @@ function Profile() {
                     <div>
                       <h3>{item.title}</h3>
                       <p>{item.description}</p>
+
                       {item.technologies && (
                         <span>{item.technologies}</span>
                       )}
@@ -952,6 +1086,150 @@ function Profile() {
           <div className="profile-section">
             <div className="profile-section-heading">
               <span>06</span>
+              <div>
+                <h2>Certifications</h2>
+                <p>Add your professional certifications and credentials.</p>
+              </div>
+            </div>
+
+            {certifications.length > 0 && (
+              <div className="education-list">
+                {certifications.map((item) => (
+                  <div key={item.id} className="education-item">
+                    <div>
+                      <h3>{item.name}</h3>
+                      <p>{item.issuingOrganization}</p>
+
+                      {item.issueDate && (
+                        <span>Issued: {item.issueDate}</span>
+                      )}
+
+                      {item.credentialId && (
+                        <span>Credential ID: {item.credentialId}</span>
+                      )}
+
+                      {item.credentialUrl && (
+                        <div>
+                          <a
+                            href={item.credentialUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            View Credential
+                          </a>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="education-actions">
+                      <button
+                        type="button"
+                        onClick={() => handleEditCertification(item)}
+                        className="education-edit"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCertification(item.id)}
+                        className="education-delete"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="profile-form-grid">
+              <label>
+                Certification Name
+                <input
+                  type="text"
+                  name="name"
+                  value={certificationForm.name}
+                  onChange={handleCertificationChange}
+                  placeholder="e.g. Java Programming Certification"
+                />
+              </label>
+
+              <label>
+                Issuing Organization
+                <input
+                  type="text"
+                  name="issuingOrganization"
+                  value={certificationForm.issuingOrganization}
+                  onChange={handleCertificationChange}
+                  placeholder="e.g. Oracle"
+                />
+              </label>
+
+              <label>
+                Issue Date
+                <input
+                  type="date"
+                  name="issueDate"
+                  value={certificationForm.issueDate}
+                  onChange={handleCertificationChange}
+                />
+              </label>
+
+              <label>
+                Credential ID
+                <input
+                  type="text"
+                  name="credentialId"
+                  value={certificationForm.credentialId}
+                  onChange={handleCertificationChange}
+                  placeholder="e.g. JAVA-CERT-001"
+                />
+              </label>
+
+              <label>
+                Credential URL
+                <input
+                  type="url"
+                  name="credentialUrl"
+                  value={certificationForm.credentialUrl}
+                  onChange={handleCertificationChange}
+                  placeholder="https://example.com/certificate"
+                />
+              </label>
+            </div>
+
+            <div className="education-form-actions">
+              <button
+                type="button"
+                onClick={handleAddCertification}
+                className="auth-button education-add"
+                disabled={certificationSaving}
+              >
+                {certificationSaving
+                  ? editingCertificationId
+                    ? 'Updating Certification...'
+                    : 'Adding Certification...'
+                  : editingCertificationId
+                    ? 'Update Certification'
+                    : 'Add Certification'}
+              </button>
+
+              {editingCertificationId && (
+                <button
+                  type="button"
+                  onClick={handleCancelCertificationEdit}
+                  className="education-cancel"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="profile-section">
+            <div className="profile-section-heading">
+              <span>07</span>
               <div>
                 <h2>Career Goal</h2>
                 <p>Tell us where you want your career to go.</p>

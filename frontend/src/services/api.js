@@ -117,6 +117,32 @@ export const api = {
     return data
   },
 
+  uploadProfilePhoto: async (studentId, file) => {
+    const token = localStorage.getItem('token')
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/profile-photo`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to upload profile photo')
+    }
+
+    return data
+  },
+
   createEducation: async (studentId, education) => {
     const token = localStorage.getItem('token')
 
@@ -479,6 +505,102 @@ export const api = {
     if (!response.ok) {
       const data = await response.json()
       throw new Error(data.message || 'Failed to delete certification')
+    }
+  },
+
+  createInternship: async (studentId, internship) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}/internships`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(internship)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to create internship')
+    }
+
+    return data
+  },
+
+  getInternshipsByStudentId: async (studentId) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}/internships`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch internships')
+    }
+
+    return data
+  },
+
+  getInternshipById: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/internships/${id}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch internship')
+    }
+
+    return data
+  },
+
+  updateInternship: async (id, internship) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/internships/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(internship)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update internship')
+    }
+
+    return data
+  },
+
+  deleteInternship: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/internships/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Failed to delete internship')
     }
   }
 }

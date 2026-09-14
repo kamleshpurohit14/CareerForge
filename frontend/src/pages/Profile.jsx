@@ -2,11 +2,17 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
 
+const API_BASE_URL = 'http://localhost:8080'
+
 function Profile() {
   const navigate = useNavigate()
   const email = localStorage.getItem('email')
 
   const [studentId, setStudentId] = useState(null)
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState('')
+  const [photoPreview, setPhotoPreview] = useState('')
+  const [photoSaving, setPhotoSaving] = useState(false)
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: email || '',
@@ -41,6 +47,18 @@ function Profile() {
     liveUrl: ''
   })
 
+  const [internships, setInternships] = useState([])
+  const [internshipForm, setInternshipForm] = useState({
+    companyName: '',
+    role: '',
+    location: '',
+    startDate: '',
+    endDate: '',
+    description: '',
+    technologies: '',
+    certificateUrl: ''
+  })
+
   const [certifications, setCertifications] = useState([])
   const [certificationForm, setCertificationForm] = useState({
     name: '',
@@ -56,10 +74,12 @@ function Profile() {
   const [educationSaving, setEducationSaving] = useState(false)
   const [skillSaving, setSkillSaving] = useState(false)
   const [projectSaving, setProjectSaving] = useState(false)
+  const [internshipSaving, setInternshipSaving] = useState(false)
   const [certificationSaving, setCertificationSaving] = useState(false)
   const [editingEducationId, setEditingEducationId] = useState(null)
   const [editingSkillId, setEditingSkillId] = useState(null)
   const [editingProjectId, setEditingProjectId] = useState(null)
+  const [editingInternshipId, setEditingInternshipId] = useState(null)
   const [editingCertificationId, setEditingCertificationId] = useState(null)
 
   useEffect(() => {
@@ -85,11 +105,22 @@ function Profile() {
           careerGoal: student.careerGoal || ''
         })
 
+        if (student.profilePhotoUrl) {
+          const photoUrl = `${API_BASE_URL}${student.profilePhotoUrl}`
+          setProfilePhotoUrl(photoUrl)
+          setPhotoPreview(photoUrl)
+        }
+
         setEducation(student.education || [])
         setSkills(student.skills || [])
 
         const studentProjects = await api.getProjectsByStudentId(student.id)
         setProjects(studentProjects || [])
+
+        const studentInternships =
+          await api.getInternshipsByStudentId(student.id)
+
+        setInternships(studentInternships || [])
 
         const studentCertifications =
           await api.getCertificationsByStudentId(student.id)
@@ -114,6 +145,54 @@ function Profile() {
     })
   }
 
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file.')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Profile photo must be smaller than 5 MB.')
+      return
+    }
+
+    if (!studentId) {
+      setError('Please save your profile before uploading a photo.')
+      return
+    }
+
+    setError('')
+
+    const previewUrl = URL.createObjectURL(file)
+    setPhotoPreview(previewUrl)
+    setPhotoSaving(true)
+
+    try {
+      const updatedStudent = await api.uploadProfilePhoto(studentId, file)
+
+      if (updatedStudent.profilePhotoUrl) {
+        const savedPhotoUrl =
+          `${API_BASE_URL}${updatedStudent.profilePhotoUrl}`
+
+        setProfilePhotoUrl(savedPhotoUrl)
+        setPhotoPreview(savedPhotoUrl)
+      }
+    } catch (err) {
+      setPhotoPreview(profilePhotoUrl)
+      setError(err.message || 'Failed to upload profile photo')
+    } finally {
+      setPhotoSaving(false)
+      URL.revokeObjectURL(previewUrl)
+      e.target.value = ''
+    }
+  }
+
   const handleEducationChange = (e) => {
     setEducationForm({
       ...educationForm,
@@ -131,6 +210,13 @@ function Profile() {
   const handleProjectChange = (e) => {
     setProjectForm({
       ...projectForm,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleInternshipChange = (e) => {
+    setInternshipForm({
+      ...internshipForm,
       [e.target.name]: e.target.value
     })
   }
@@ -455,6 +541,128 @@ function Profile() {
     }
   }
 
+  const handleAddInternship = async () => {
+    if (!studentId) {
+      setError('Please save your profile before adding internships.')
+      return
+    }
+
+    if (
+      !internshipForm.companyName.trim() ||
+      !internshipForm.role.trim()
+    ) {
+      setError('Please enter company name and internship role.')
+      return
+    }
+
+    setError('')
+    setInternshipSaving(true)
+
+    try {
+      const internshipData = {
+        companyName: internshipForm.companyName,
+        role: internshipForm.role,
+        location: internshipForm.location,
+        startDate: internshipForm.startDate,
+        endDate: internshipForm.endDate,
+        description: internshipForm.description,
+        technologies: internshipForm.technologies,
+        certificateUrl: internshipForm.certificateUrl
+      }
+
+      if (editingInternshipId) {
+        const updatedInternship = await api.updateInternship(
+          editingInternshipId,
+          internshipData
+        )
+
+        setInternships(
+          internships.map((item) =>
+            item.id === editingInternshipId
+              ? updatedInternship
+              : item
+          )
+        )
+
+        setEditingInternshipId(null)
+      } else {
+        const createdInternship = await api.createInternship(
+          studentId,
+          internshipData
+        )
+
+        setInternships([...internships, createdInternship])
+      }
+
+      setInternshipForm({
+        companyName: '',
+        role: '',
+        location: '',
+        startDate: '',
+        endDate: '',
+        description: '',
+        technologies: '',
+        certificateUrl: ''
+      })
+    } catch (err) {
+      setError(err.message || 'Failed to save internship')
+    } finally {
+      setInternshipSaving(false)
+    }
+  }
+
+  const handleEditInternship = (item) => {
+    setEditingInternshipId(item.id)
+
+    setInternshipForm({
+      companyName: item.companyName || '',
+      role: item.role || '',
+      location: item.location || '',
+      startDate: item.startDate || '',
+      endDate: item.endDate || '',
+      description: item.description || '',
+      technologies: item.technologies || '',
+      certificateUrl: item.certificateUrl || ''
+    })
+
+    setError('')
+  }
+
+  const handleCancelInternshipEdit = () => {
+    setEditingInternshipId(null)
+
+    setInternshipForm({
+      companyName: '',
+      role: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      description: '',
+      technologies: '',
+      certificateUrl: ''
+    })
+
+    setError('')
+  }
+
+  const handleDeleteInternship = async (id) => {
+    setError('')
+
+    try {
+      await api.deleteInternship(id)
+
+      setInternships(
+        internships.filter((item) => item.id !== id)
+      )
+
+      if (editingInternshipId === id) {
+        handleCancelInternshipEdit()
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to delete internship')
+    }
+  }
+
   const handleAddCertification = async () => {
     if (!studentId) {
       setError('Please save your profile before adding certifications.')
@@ -598,6 +806,48 @@ function Profile() {
             Add your personal, academic and career information to create your
             CareerForge profile.
           </p>
+        </div>
+
+        <div className="profile-photo-card">
+          <div className="profile-photo-preview">
+            {photoPreview ? (
+              <img
+                src={photoPreview}
+                alt="Profile"
+                className="profile-photo-image"
+              />
+            ) : (
+              <div className="profile-photo-placeholder">
+                {formData.fullName
+                  ? formData.fullName.charAt(0).toUpperCase()
+                  : 'U'}
+              </div>
+            )}
+          </div>
+
+          <div className="profile-photo-content">
+            <span className="profile-photo-label">Profile Photo</span>
+            <h2>Add your professional photo.</h2>
+            <p>
+              Upload a clear profile photo that can also be used later in your
+              CareerForge resume.
+            </p>
+
+            <label className="profile-photo-button">
+              {photoSaving ? 'Uploading Photo...' : 'Choose Photo'}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                disabled={photoSaving}
+                hidden
+              />
+            </label>
+
+            <span className="profile-photo-hint">
+              JPG, PNG or WEBP · Maximum 5 MB
+            </span>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="profile-form">
@@ -1087,6 +1337,192 @@ function Profile() {
             <div className="profile-section-heading">
               <span>06</span>
               <div>
+                <h2>Internships</h2>
+                <p>Add your internship and practical experience.</p>
+              </div>
+            </div>
+
+            {internships.length > 0 && (
+              <div className="education-list">
+                {internships.map((item) => (
+                  <div key={item.id} className="education-item">
+                    <div>
+                      <h3>{item.role}</h3>
+                      <p>{item.companyName}</p>
+
+                      {item.location && (
+                        <span>{item.location}</span>
+                      )}
+
+                      {(item.startDate || item.endDate) && (
+                        <span>
+                          {item.startDate || 'N/A'} - {item.endDate || 'Present'}
+                        </span>
+                      )}
+
+                      {item.technologies && (
+                        <span>{item.technologies}</span>
+                      )}
+
+                      {item.description && (
+                        <p>{item.description}</p>
+                      )}
+
+                      {item.certificateUrl && (
+                        <div>
+                          <a
+                            href={item.certificateUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            View Certificate
+                          </a>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="education-actions">
+                      <button
+                        type="button"
+                        onClick={() => handleEditInternship(item)}
+                        className="education-edit"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteInternship(item.id)}
+                        className="education-delete"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="profile-form-grid">
+              <label>
+                Company Name
+                <input
+                  type="text"
+                  name="companyName"
+                  value={internshipForm.companyName}
+                  onChange={handleInternshipChange}
+                  placeholder="e.g. Sysslan IT Solutions"
+                />
+              </label>
+
+              <label>
+                Role
+                <input
+                  type="text"
+                  name="role"
+                  value={internshipForm.role}
+                  onChange={handleInternshipChange}
+                  placeholder="e.g. Java Development Intern"
+                />
+              </label>
+
+              <label>
+                Location
+                <input
+                  type="text"
+                  name="location"
+                  value={internshipForm.location}
+                  onChange={handleInternshipChange}
+                  placeholder="e.g. Dehradun"
+                />
+              </label>
+
+              <label>
+                Start Date
+                <input
+                  type="date"
+                  name="startDate"
+                  value={internshipForm.startDate}
+                  onChange={handleInternshipChange}
+                />
+              </label>
+
+              <label>
+                End Date
+                <input
+                  type="date"
+                  name="endDate"
+                  value={internshipForm.endDate}
+                  onChange={handleInternshipChange}
+                />
+              </label>
+
+              <label>
+                Technologies
+                <input
+                  type="text"
+                  name="technologies"
+                  value={internshipForm.technologies}
+                  onChange={handleInternshipChange}
+                  placeholder="e.g. Java, Spring Boot, MySQL"
+                />
+              </label>
+
+              <label>
+                Certificate URL
+                <input
+                  type="url"
+                  name="certificateUrl"
+                  value={internshipForm.certificateUrl}
+                  onChange={handleInternshipChange}
+                  placeholder="https://example.com/certificate"
+                />
+              </label>
+            </div>
+
+            <label>
+              Internship Description
+              <textarea
+                name="description"
+                value={internshipForm.description}
+                onChange={handleInternshipChange}
+                placeholder="Describe your internship experience"
+                rows="5"
+              />
+            </label>
+
+            <div className="education-form-actions">
+              <button
+                type="button"
+                onClick={handleAddInternship}
+                className="auth-button education-add"
+                disabled={internshipSaving}
+              >
+                {internshipSaving
+                  ? editingInternshipId
+                    ? 'Updating Internship...'
+                    : 'Adding Internship...'
+                  : editingInternshipId
+                    ? 'Update Internship'
+                    : 'Add Internship'}
+              </button>
+
+              {editingInternshipId && (
+                <button
+                  type="button"
+                  onClick={handleCancelInternshipEdit}
+                  className="education-cancel"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="profile-section">
+            <div className="profile-section-heading">
+              <span>07</span>
+              <div>
                 <h2>Certifications</h2>
                 <p>Add your professional certifications and credentials.</p>
               </div>
@@ -1229,7 +1665,7 @@ function Profile() {
 
           <div className="profile-section">
             <div className="profile-section-heading">
-              <span>07</span>
+              <span>08</span>
               <div>
                 <h2>Career Goal</h2>
                 <p>Tell us where you want your career to go.</p>

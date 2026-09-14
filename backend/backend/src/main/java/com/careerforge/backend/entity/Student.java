@@ -47,6 +47,8 @@ public class Student {
     @NotBlank(message = "Career goal is required")
     private String careerGoal;
 
+    private String profilePhotoUrl;
+
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("student-education")
     private List<Education> education = new ArrayList<>();
@@ -62,6 +64,10 @@ public class Student {
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("student-certifications")
     private List<Certification> certifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("student-internships")
+    private List<Internship> internships = new ArrayList<>();
 
     @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("student-assessment")
@@ -139,6 +145,14 @@ public class Student {
         this.careerGoal = careerGoal;
     }
 
+    public String getProfilePhotoUrl() {
+        return profilePhotoUrl;
+    }
+
+    public void setProfilePhotoUrl(String profilePhotoUrl) {
+        this.profilePhotoUrl = profilePhotoUrl;
+    }
+
     public List<Education> getEducation() {
         return education;
     }
@@ -171,6 +185,14 @@ public class Student {
         this.certifications = certifications;
     }
 
+    public List<Internship> getInternships() {
+        return internships;
+    }
+
+    public void setInternships(List<Internship> internships) {
+        this.internships = internships;
+    }
+
     public CareerAssessment getCareerAssessment() {
         return careerAssessment;
     }
@@ -178,5 +200,4 @@ public class Student {
     public void setCareerAssessment(CareerAssessment careerAssessment) {
         this.careerAssessment = careerAssessment;
     }
-
 }

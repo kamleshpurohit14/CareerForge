@@ -384,5 +384,101 @@ export const api = {
       const data = await response.json()
       throw new Error(data.message || 'Failed to delete project')
     }
+  },
+
+  createCertification: async (studentId, certification) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}/certifications`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(certification)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to create certification')
+    }
+
+    return data
+  },
+
+  getCertificationsByStudentId: async (studentId) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}/certifications`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch certifications')
+    }
+
+    return data
+  },
+
+  getCertificationById: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/certifications/${id}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch certification')
+    }
+
+    return data
+  },
+
+  updateCertification: async (id, certification) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/certifications/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(certification)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update certification')
+    }
+
+    return data
+  },
+
+  deleteCertification: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/certifications/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Failed to delete certification')
+    }
   }
 }

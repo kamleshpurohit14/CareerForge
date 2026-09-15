@@ -2,6 +2,7 @@ package com.careerforge.backend.service;
 
 import com.careerforge.backend.entity.Certification;
 import com.careerforge.backend.entity.Student;
+import com.careerforge.backend.exception.CertificationNotFoundException;
 import com.careerforge.backend.repository.CertificationRepository;
 import com.careerforge.backend.repository.StudentRepository;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class CertificationService {
 
     public Certification getCertificationById(Long id) {
         return certificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Certification not found"));
+                .orElseThrow(() -> new CertificationNotFoundException("Certification not found"));
     }
 
     public List<Certification> getCertificationsByStudentId(Long studentId) {
@@ -45,7 +46,7 @@ public class CertificationService {
 
     public Certification updateCertification(Long id, Certification updatedCertification) {
         Certification existingCertification = certificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Certification not found"));
+                .orElseThrow(() -> new CertificationNotFoundException("Certification not found"));
 
         existingCertification.setName(updatedCertification.getName());
         existingCertification.setIssuingOrganization(updatedCertification.getIssuingOrganization());
@@ -58,7 +59,7 @@ public class CertificationService {
 
     public void deleteCertification(Long id) {
         Certification certification = certificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Certification not found"));
+                .orElseThrow(() -> new CertificationNotFoundException("Certification not found"));
 
         certificationRepository.delete(certification);
     }

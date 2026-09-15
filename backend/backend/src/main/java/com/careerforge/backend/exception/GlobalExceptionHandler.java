@@ -23,6 +23,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(CertificationNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCertificationNotFoundException(
+            CertificationNotFoundException exception) {
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", exception.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationException(
             MethodArgumentNotValidException exception) {
@@ -45,7 +55,6 @@ public class GlobalExceptionHandler {
         exception.getConstraintViolations()
                 .forEach(error -> errors.put(
                         error.getPropertyPath().toString(),
-                  
                         error.getMessage()
                 ));
 

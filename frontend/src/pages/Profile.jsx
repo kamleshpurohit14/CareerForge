@@ -76,6 +76,7 @@ function Profile() {
   const [projectSaving, setProjectSaving] = useState(false)
   const [internshipSaving, setInternshipSaving] = useState(false)
   const [certificationSaving, setCertificationSaving] = useState(false)
+
   const [editingEducationId, setEditingEducationId] = useState(null)
   const [editingSkillId, setEditingSkillId] = useState(null)
   const [editingProjectId, setEditingProjectId] = useState(null)
@@ -100,8 +101,8 @@ function Profile() {
           phone: student.phone || '',
           college: student.college || '',
           branch: student.branch || '',
-          semester: student.semester || '',
-          cgpa: student.cgpa || '',
+          semester: student.semester ?? '',
+          cgpa: student.cgpa ?? '',
           careerGoal: student.careerGoal || ''
         })
 
@@ -114,7 +115,9 @@ function Profile() {
         setEducation(student.education || [])
         setSkills(student.skills || [])
 
-        const studentProjects = await api.getProjectsByStudentId(student.id)
+        const studentProjects =
+          await api.getProjectsByStudentId(student.id)
+
         setProjects(studentProjects || [])
 
         const studentInternships =
@@ -174,7 +177,10 @@ function Profile() {
     setPhotoSaving(true)
 
     try {
-      const updatedStudent = await api.uploadProfilePhoto(studentId, file)
+      const updatedStudent = await api.uploadProfilePhoto(
+        studentId,
+        file
+      )
 
       if (updatedStudent.profilePhotoUrl) {
         const savedPhotoUrl =
@@ -228,16 +234,47 @@ function Profile() {
     })
   }
 
+  /*
+   * Save Profile
+   *
+   * Name + Email are the minimum information shown as required
+   * on the frontend.
+   *
+   * Numeric fields remain null when the user leaves them blank.
+   * This prevents blank values from becoming 0.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (!formData.fullName.trim()) {
+      setError('Please enter your full name.')
+      return
+    }
+
+    if (!formData.email.trim()) {
+      setError('Please enter your email address.')
+      return
+    }
+
     setSaving(true)
 
     try {
       const student = {
-        ...formData,
-        semester: Number(formData.semester),
-        cgpa: Number(formData.cgpa)
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        college: formData.college.trim(),
+        branch: formData.branch.trim(),
+        semester:
+          formData.semester === ''
+            ? null
+            : Number(formData.semester),
+        cgpa:
+          formData.cgpa === ''
+            ? null
+            : Number(formData.cgpa),
+        careerGoal: formData.careerGoal.trim()
       }
 
       if (studentId) {
@@ -246,6 +283,12 @@ function Profile() {
         const createdStudent = await api.createStudent(student)
         setStudentId(createdStudent.id)
       }
+
+      /*
+       * Keep the saved email synchronized.
+       * Dashboard uses this email to load the student.
+       */
+      localStorage.setItem('email', student.email)
 
       navigate('/dashboard')
     } catch (err) {
@@ -267,7 +310,10 @@ function Profile() {
     try {
       const educationData = {
         ...educationForm,
-        passingYear: Number(educationForm.passingYear)
+        passingYear:
+          educationForm.passingYear === ''
+            ? null
+            : Number(educationForm.passingYear)
       }
 
       if (editingEducationId) {
@@ -278,7 +324,9 @@ function Profile() {
 
         setEducation(
           education.map((item) =>
-            item.id === editingEducationId ? updatedEducation : item
+            item.id === editingEducationId
+              ? updatedEducation
+              : item
           )
         )
 
@@ -337,7 +385,9 @@ function Profile() {
     try {
       await api.deleteEducation(id)
 
-      setEducation(education.filter((item) => item.id !== id))
+      setEducation(
+        education.filter((item) => item.id !== id)
+      )
 
       if (editingEducationId === id) {
         handleCancelEducationEdit()
@@ -363,7 +413,7 @@ function Profile() {
 
     try {
       const skillData = {
-        name: skillForm.name,
+        name: skillForm.name.trim(),
         level: skillForm.level
       }
 
@@ -375,7 +425,9 @@ function Profile() {
 
         setSkills(
           skills.map((item) =>
-            item.id === editingSkillId ? updatedSkill : item
+            item.id === editingSkillId
+              ? updatedSkill
+              : item
           )
         )
 
@@ -428,7 +480,9 @@ function Profile() {
     try {
       await api.deleteSkill(id)
 
-      setSkills(skills.filter((item) => item.id !== id))
+      setSkills(
+        skills.filter((item) => item.id !== id)
+      )
 
       if (editingSkillId === id) {
         handleCancelSkillEdit()
@@ -444,7 +498,10 @@ function Profile() {
       return
     }
 
-    if (!projectForm.title.trim() || !projectForm.description.trim()) {
+    if (
+      !projectForm.title.trim() ||
+      !projectForm.description.trim()
+    ) {
       setError('Please enter project title and description.')
       return
     }
@@ -454,11 +511,11 @@ function Profile() {
 
     try {
       const projectData = {
-        title: projectForm.title,
-        description: projectForm.description,
-        technologies: projectForm.technologies,
-        githubUrl: projectForm.githubUrl,
-        liveUrl: projectForm.liveUrl
+        title: projectForm.title.trim(),
+        description: projectForm.description.trim(),
+        technologies: projectForm.technologies.trim(),
+        githubUrl: projectForm.githubUrl.trim(),
+        liveUrl: projectForm.liveUrl.trim()
       }
 
       if (editingProjectId) {
@@ -469,7 +526,9 @@ function Profile() {
 
         setProjects(
           projects.map((item) =>
-            item.id === editingProjectId ? updatedProject : item
+            item.id === editingProjectId
+              ? updatedProject
+              : item
           )
         )
 
@@ -531,7 +590,9 @@ function Profile() {
     try {
       await api.deleteProject(id)
 
-      setProjects(projects.filter((item) => item.id !== id))
+      setProjects(
+        projects.filter((item) => item.id !== id)
+      )
 
       if (editingProjectId === id) {
         handleCancelProjectEdit()
@@ -560,14 +621,14 @@ function Profile() {
 
     try {
       const internshipData = {
-        companyName: internshipForm.companyName,
-        role: internshipForm.role,
-        location: internshipForm.location,
+        companyName: internshipForm.companyName.trim(),
+        role: internshipForm.role.trim(),
+        location: internshipForm.location.trim(),
         startDate: internshipForm.startDate,
         endDate: internshipForm.endDate,
-        description: internshipForm.description,
-        technologies: internshipForm.technologies,
-        certificateUrl: internshipForm.certificateUrl
+        description: internshipForm.description.trim(),
+        technologies: internshipForm.technologies.trim(),
+        certificateUrl: internshipForm.certificateUrl.trim()
       }
 
       if (editingInternshipId) {
@@ -591,7 +652,10 @@ function Profile() {
           internshipData
         )
 
-        setInternships([...internships, createdInternship])
+        setInternships([
+          ...internships,
+          createdInternship
+        ])
       }
 
       setInternshipForm({
@@ -673,7 +737,9 @@ function Profile() {
       !certificationForm.name.trim() ||
       !certificationForm.issuingOrganization.trim()
     ) {
-      setError('Please enter certification name and issuing organization.')
+      setError(
+        'Please enter certification name and issuing organization.'
+      )
       return
     }
 
@@ -682,18 +748,20 @@ function Profile() {
 
     try {
       const certificationData = {
-        name: certificationForm.name,
-        issuingOrganization: certificationForm.issuingOrganization,
+        name: certificationForm.name.trim(),
+        issuingOrganization:
+          certificationForm.issuingOrganization.trim(),
         issueDate: certificationForm.issueDate,
-        credentialId: certificationForm.credentialId,
-        credentialUrl: certificationForm.credentialUrl
+        credentialId: certificationForm.credentialId.trim(),
+        credentialUrl: certificationForm.credentialUrl.trim()
       }
 
       if (editingCertificationId) {
-        const updatedCertification = await api.updateCertification(
-          editingCertificationId,
-          certificationData
-        )
+        const updatedCertification =
+          await api.updateCertification(
+            editingCertificationId,
+            certificationData
+          )
 
         setCertifications(
           certifications.map((item) =>
@@ -705,12 +773,16 @@ function Profile() {
 
         setEditingCertificationId(null)
       } else {
-        const createdCertification = await api.createCertification(
-          studentId,
-          certificationData
-        )
+        const createdCertification =
+          await api.createCertification(
+            studentId,
+            certificationData
+          )
 
-        setCertifications([...certifications, createdCertification])
+        setCertifications([
+          ...certifications,
+          createdCertification
+        ])
       }
 
       setCertificationForm({
@@ -732,7 +804,8 @@ function Profile() {
 
     setCertificationForm({
       name: item.name || '',
-      issuingOrganization: item.issuingOrganization || '',
+      issuingOrganization:
+        item.issuingOrganization || '',
       issueDate: item.issueDate || '',
       credentialId: item.credentialId || '',
       credentialUrl: item.credentialUrl || ''
@@ -769,22 +842,35 @@ function Profile() {
         handleCancelCertificationEdit()
       }
     } catch (err) {
-      setError(err.message || 'Failed to delete certification')
+      setError(
+        err.message || 'Failed to delete certification'
+      )
     }
   }
+
+  /*
+   * Personalized greeting
+   */
+  const firstName = formData.fullName.trim()
+    ? formData.fullName.trim().split(/\s+/)[0]
+    : ''
 
   if (loading) {
     return (
       <main className="profile-page">
         <nav className="dashboard-navbar">
-          <Link to="/dashboard" className="brand">CareerForge</Link>
+          <Link to="/dashboard" className="brand">
+            CareerForge
+          </Link>
         </nav>
 
         <section className="profile-content">
           <div className="profile-heading">
             <span>Student Profile</span>
             <h1>Loading your profile...</h1>
-            <p>Fetching your information from CareerForge.</p>
+            <p>
+              Fetching your information from CareerForge.
+            </p>
           </div>
         </section>
       </main>
@@ -793,23 +879,66 @@ function Profile() {
 
   return (
     <main className="profile-page">
+
       <nav className="dashboard-navbar">
-        <Link to="/dashboard" className="brand">CareerForge</Link>
-        <Link to="/dashboard" className="dashboard-logout">Dashboard</Link>
+        <Link to="/dashboard" className="brand">
+          CareerForge
+        </Link>
+
+        <Link
+          to="/dashboard"
+          className="dashboard-logout"
+        >
+          Dashboard
+        </Link>
       </nav>
 
       <section className="profile-content">
+
         <div className="profile-heading">
           <span>Student Profile</span>
-          <h1>Build your professional profile.</h1>
+
+          <h1>
+            Build your professional profile.
+          </h1>
+
           <p>
-            Add your personal, academic and career information to create your
-            CareerForge profile.
+            Add your personal, academic and career information
+            to create your CareerForge profile.
           </p>
         </div>
 
+
+        {/* =========================
+            PERSONALIZED WELCOME
+            ========================= */}
+
+        {firstName && (
+          <div className="profile-welcome-card">
+
+            <span>CAREERFORGE</span>
+
+            <h2>
+              Welcome, {firstName}. Your career journey starts here.
+            </h2>
+
+            <p>
+              Build your profile, track your growth, and take
+              the next step toward your goals with CareerForge.
+            </p>
+
+          </div>
+        )}
+
+
+        {/* =========================
+            PROFILE PHOTO
+            ========================= */}
+
         <div className="profile-photo-card">
+
           <div className="profile-photo-preview">
+
             {photoPreview ? (
               <img
                 src={photoPreview}
@@ -819,22 +948,36 @@ function Profile() {
             ) : (
               <div className="profile-photo-placeholder">
                 {formData.fullName
-                  ? formData.fullName.charAt(0).toUpperCase()
+                  ? formData.fullName
+                      .charAt(0)
+                      .toUpperCase()
                   : 'U'}
               </div>
             )}
+
           </div>
 
           <div className="profile-photo-content">
-            <span className="profile-photo-label">Profile Photo</span>
-            <h2>Add your professional photo.</h2>
+
+            <span className="profile-photo-label">
+              Profile Photo
+            </span>
+
+            <h2>
+              Add your professional photo.
+            </h2>
+
             <p>
-              Upload a clear profile photo that can also be used later in your
-              CareerForge resume.
+              Upload a clear profile photo that can also be
+              used later in your CareerForge resume.
             </p>
 
             <label className="profile-photo-button">
-              {photoSaving ? 'Uploading Photo...' : 'Choose Photo'}
+
+              {photoSaving
+                ? 'Uploading Photo...'
+                : 'Choose Photo'}
+
               <input
                 type="file"
                 accept="image/*"
@@ -842,27 +985,47 @@ function Profile() {
                 disabled={photoSaving}
                 hidden
               />
+
             </label>
 
             <span className="profile-photo-hint">
               JPG, PNG or WEBP · Maximum 5 MB
             </span>
+
           </div>
+
         </div>
 
-        <form onSubmit={handleSubmit} className="profile-form">
+
+        <form
+          onSubmit={handleSubmit}
+          className="profile-form"
+        >
+
+          {/* =========================
+              PERSONAL INFORMATION
+              ========================= */}
+
           <div className="profile-section">
+
             <div className="profile-section-heading">
+
               <span>01</span>
+
               <div>
                 <h2>Personal Information</h2>
-                <p>Tell us a little about yourself.</p>
+                <p>
+                  Start with the basics of your profile.
+                </p>
               </div>
+
             </div>
 
             <div className="profile-form-grid">
+
               <label>
                 Full Name
+
                 <input
                   type="text"
                   name="fullName"
@@ -875,6 +1038,7 @@ function Profile() {
 
               <label>
                 Email Address
+
                 <input
                   type="email"
                   name="email"
@@ -887,71 +1051,94 @@ function Profile() {
 
               <label>
                 Phone Number
+
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="Enter your phone number"
-                  required
                 />
               </label>
+
             </div>
+
           </div>
 
+
+          {/* =========================
+              ACADEMIC INFORMATION
+              ========================= */}
+
           <div className="profile-section">
+
             <div className="profile-section-heading">
+
               <span>02</span>
+
               <div>
                 <h2>Academic Information</h2>
-                <p>Add your current academic details.</p>
+                <p>
+                  Add your current academic details when ready.
+                </p>
               </div>
+
             </div>
 
             <div className="profile-form-grid">
+
               <label>
                 College
+
                 <input
                   type="text"
                   name="college"
                   value={formData.college}
                   onChange={handleChange}
                   placeholder="Enter your college"
-                  required
                 />
               </label>
 
               <label>
                 Branch
+
                 <input
                   type="text"
                   name="branch"
                   value={formData.branch}
                   onChange={handleChange}
                   placeholder="e.g. Computer Science"
-                  required
                 />
               </label>
 
               <label>
                 Semester
+
                 <select
                   name="semester"
                   value={formData.semester}
                   onChange={handleChange}
-                  required
                 >
-                  <option value="">Select semester</option>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
-                    <option key={semester} value={semester}>
-                      Semester {semester}
-                    </option>
-                  ))}
+                  <option value="">
+                    Select semester
+                  </option>
+
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(
+                    (semester) => (
+                      <option
+                        key={semester}
+                        value={semester}
+                      >
+                        Semester {semester}
+                      </option>
+                    )
+                  )}
                 </select>
               </label>
 
               <label>
                 CGPA
+
                 <input
                   type="number"
                   name="cgpa"
@@ -961,37 +1148,58 @@ function Profile() {
                   min="0"
                   max="10"
                   step="0.01"
-                  required
                 />
               </label>
+
             </div>
+
           </div>
 
+
+          {/* =========================
+              EDUCATION
+              ========================= */}
+
           <div className="profile-section">
+
             <div className="profile-section-heading">
+
               <span>03</span>
+
               <div>
                 <h2>Education</h2>
-                <p>Add your educational qualifications.</p>
+                <p>
+                  Add your educational qualifications.
+                </p>
               </div>
+
             </div>
 
             {education.length > 0 && (
               <div className="education-list">
+
                 {education.map((item) => (
-                  <div key={item.id} className="education-item">
+                  <div
+                    key={item.id}
+                    className="education-item"
+                  >
+
                     <div>
                       <h3>{item.degree}</h3>
                       <p>{item.institution}</p>
+
                       <span>
                         {item.specialization} · {item.passingYear}
                       </span>
                     </div>
 
                     <div className="education-actions">
+
                       <button
                         type="button"
-                        onClick={() => handleEditEducation(item)}
+                        onClick={() =>
+                          handleEditEducation(item)
+                        }
                         className="education-edit"
                       >
                         Edit
@@ -999,20 +1207,27 @@ function Profile() {
 
                       <button
                         type="button"
-                        onClick={() => handleDeleteEducation(item.id)}
+                        onClick={() =>
+                          handleDeleteEducation(item.id)
+                        }
                         className="education-delete"
                       >
                         Delete
                       </button>
+
                     </div>
+
                   </div>
                 ))}
+
               </div>
             )}
 
             <div className="profile-form-grid">
+
               <label>
                 Degree
+
                 <input
                   type="text"
                   name="degree"
@@ -1024,6 +1239,7 @@ function Profile() {
 
               <label>
                 Institution
+
                 <input
                   type="text"
                   name="institution"
@@ -1035,17 +1251,19 @@ function Profile() {
 
               <label>
                 Specialization
+
                 <input
                   type="text"
                   name="specialization"
                   value={educationForm.specialization}
                   onChange={handleEducationChange}
-                  placeholder="e.g. Information Technology"
+                  placeholder="e.g. Computer Science"
                 />
               </label>
 
               <label>
                 Passing Year
+
                 <input
                   type="number"
                   name="passingYear"
@@ -1056,9 +1274,11 @@ function Profile() {
                   max="2100"
                 />
               </label>
+
             </div>
 
             <div className="education-form-actions">
+
               <button
                 type="button"
                 onClick={handleAddEducation}
@@ -1083,28 +1303,47 @@ function Profile() {
                   Cancel Edit
                 </button>
               )}
+
             </div>
+
           </div>
 
+
+          {/* =========================
+              SKILLS
+              ========================= */}
+
           <div className="profile-section">
+
             <div className="profile-section-heading">
+
               <span>04</span>
+
               <div>
                 <h2>Skills</h2>
-                <p>Add the technical and professional skills you have.</p>
+                <p>
+                  Add your technical and professional skills.
+                </p>
               </div>
+
             </div>
 
             {skills.length > 0 && (
               <div className="education-list">
+
                 {skills.map((item) => (
-                  <div key={item.id} className="education-item">
+                  <div
+                    key={item.id}
+                    className="education-item"
+                  >
+
                     <div>
                       <h3>{item.name}</h3>
                       <span>{item.level}</span>
                     </div>
 
                     <div className="education-actions">
+
                       <button
                         type="button"
                         onClick={() => handleEditSkill(item)}
@@ -1115,20 +1354,27 @@ function Profile() {
 
                       <button
                         type="button"
-                        onClick={() => handleDeleteSkill(item.id)}
+                        onClick={() =>
+                          handleDeleteSkill(item.id)
+                        }
                         className="education-delete"
                       >
                         Delete
                       </button>
+
                     </div>
+
                   </div>
                 ))}
+
               </div>
             )}
 
             <div className="profile-form-grid">
+
               <label>
                 Skill Name
+
                 <input
                   type="text"
                   name="name"
@@ -1140,21 +1386,39 @@ function Profile() {
 
               <label>
                 Skill Level
+
                 <select
                   name="level"
                   value={skillForm.level}
                   onChange={handleSkillChange}
                 >
-                  <option value="">Select skill level</option>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                  <option value="Expert">Expert</option>
+                  <option value="">
+                    Select skill level
+                  </option>
+
+                  <option value="Beginner">
+                    Beginner
+                  </option>
+
+                  <option value="Intermediate">
+                    Intermediate
+                  </option>
+
+                  <option value="Advanced">
+                    Advanced
+                  </option>
+
+                  <option value="Expert">
+                    Expert
+                  </option>
+
                 </select>
               </label>
+
             </div>
 
             <div className="education-form-actions">
+
               <button
                 type="button"
                 onClick={handleAddSkill}
@@ -1179,31 +1443,54 @@ function Profile() {
                   Cancel Edit
                 </button>
               )}
+
             </div>
+
           </div>
 
+
+          {/* =========================
+              PROJECTS
+              ========================= */}
+
           <div className="profile-section">
+
             <div className="profile-section-heading">
+
               <span>05</span>
+
               <div>
                 <h2>Projects</h2>
-                <p>Showcase the projects you have built.</p>
+                <p>
+                  Showcase the projects you have built.
+                </p>
               </div>
+
             </div>
 
             {projects.length > 0 && (
               <div className="education-list">
+
                 {projects.map((item) => (
-                  <div key={item.id} className="education-item">
+                  <div
+                    key={item.id}
+                    className="education-item"
+                  >
+
                     <div>
+
                       <h3>{item.title}</h3>
+
                       <p>{item.description}</p>
 
                       {item.technologies && (
-                        <span>{item.technologies}</span>
+                        <span>
+                          {item.technologies}
+                        </span>
                       )}
 
                       <div>
+
                         {item.githubUrl && (
                           <a
                             href={item.githubUrl}
@@ -1223,13 +1510,18 @@ function Profile() {
                             Live Demo
                           </a>
                         )}
+
                       </div>
+
                     </div>
 
                     <div className="education-actions">
+
                       <button
                         type="button"
-                        onClick={() => handleEditProject(item)}
+                        onClick={() =>
+                          handleEditProject(item)
+                        }
                         className="education-edit"
                       >
                         Edit
@@ -1237,20 +1529,27 @@ function Profile() {
 
                       <button
                         type="button"
-                        onClick={() => handleDeleteProject(item.id)}
+                        onClick={() =>
+                          handleDeleteProject(item.id)
+                        }
                         className="education-delete"
                       >
                         Delete
                       </button>
+
                     </div>
+
                   </div>
                 ))}
+
               </div>
             )}
 
             <div className="profile-form-grid">
+
               <label>
                 Project Title
+
                 <input
                   type="text"
                   name="title"
@@ -1262,6 +1561,7 @@ function Profile() {
 
               <label>
                 Technologies
+
                 <input
                   type="text"
                   name="technologies"
@@ -1273,6 +1573,7 @@ function Profile() {
 
               <label>
                 GitHub URL
+
                 <input
                   type="url"
                   name="githubUrl"
@@ -1284,6 +1585,7 @@ function Profile() {
 
               <label>
                 Live Project URL
+
                 <input
                   type="url"
                   name="liveUrl"
@@ -1292,10 +1594,12 @@ function Profile() {
                   placeholder="https://example.com"
                 />
               </label>
+
             </div>
 
             <label>
               Project Description
+
               <textarea
                 name="description"
                 value={projectForm.description}
@@ -1306,6 +1610,7 @@ function Profile() {
             </label>
 
             <div className="education-form-actions">
+
               <button
                 type="button"
                 onClick={handleAddProject}
@@ -1330,24 +1635,44 @@ function Profile() {
                   Cancel Edit
                 </button>
               )}
+
             </div>
+
           </div>
 
+
+          {/* =========================
+              INTERNSHIPS
+              ========================= */}
+
           <div className="profile-section">
+
             <div className="profile-section-heading">
+
               <span>06</span>
+
               <div>
                 <h2>Internships</h2>
-                <p>Add your internship and practical experience.</p>
+                <p>
+                  Add your internship and practical experience.
+                </p>
               </div>
+
             </div>
 
             {internships.length > 0 && (
               <div className="education-list">
+
                 {internships.map((item) => (
-                  <div key={item.id} className="education-item">
+                  <div
+                    key={item.id}
+                    className="education-item"
+                  >
+
                     <div>
+
                       <h3>{item.role}</h3>
+
                       <p>{item.companyName}</p>
 
                       {item.location && (
@@ -1356,12 +1681,15 @@ function Profile() {
 
                       {(item.startDate || item.endDate) && (
                         <span>
-                          {item.startDate || 'N/A'} - {item.endDate || 'Present'}
+                          {item.startDate || 'N/A'} -{' '}
+                          {item.endDate || 'Present'}
                         </span>
                       )}
 
                       {item.technologies && (
-                        <span>{item.technologies}</span>
+                        <span>
+                          {item.technologies}
+                        </span>
                       )}
 
                       {item.description && (
@@ -1379,12 +1707,16 @@ function Profile() {
                           </a>
                         </div>
                       )}
+
                     </div>
 
                     <div className="education-actions">
+
                       <button
                         type="button"
-                        onClick={() => handleEditInternship(item)}
+                        onClick={() =>
+                          handleEditInternship(item)
+                        }
                         className="education-edit"
                       >
                         Edit
@@ -1392,31 +1724,39 @@ function Profile() {
 
                       <button
                         type="button"
-                        onClick={() => handleDeleteInternship(item.id)}
+                        onClick={() =>
+                          handleDeleteInternship(item.id)
+                        }
                         className="education-delete"
                       >
                         Delete
                       </button>
+
                     </div>
+
                   </div>
                 ))}
+
               </div>
             )}
 
             <div className="profile-form-grid">
+
               <label>
                 Company Name
+
                 <input
                   type="text"
                   name="companyName"
                   value={internshipForm.companyName}
                   onChange={handleInternshipChange}
-                  placeholder="e.g. Sysslan IT Solutions"
+                  placeholder="e.g. Company Name"
                 />
               </label>
 
               <label>
                 Role
+
                 <input
                   type="text"
                   name="role"
@@ -1428,6 +1768,7 @@ function Profile() {
 
               <label>
                 Location
+
                 <input
                   type="text"
                   name="location"
@@ -1439,6 +1780,7 @@ function Profile() {
 
               <label>
                 Start Date
+
                 <input
                   type="date"
                   name="startDate"
@@ -1449,6 +1791,7 @@ function Profile() {
 
               <label>
                 End Date
+
                 <input
                   type="date"
                   name="endDate"
@@ -1459,6 +1802,7 @@ function Profile() {
 
               <label>
                 Technologies
+
                 <input
                   type="text"
                   name="technologies"
@@ -1470,6 +1814,7 @@ function Profile() {
 
               <label>
                 Certificate URL
+
                 <input
                   type="url"
                   name="certificateUrl"
@@ -1478,10 +1823,12 @@ function Profile() {
                   placeholder="https://example.com/certificate"
                 />
               </label>
+
             </div>
 
             <label>
               Internship Description
+
               <textarea
                 name="description"
                 value={internshipForm.description}
@@ -1492,6 +1839,7 @@ function Profile() {
             </label>
 
             <div className="education-form-actions">
+
               <button
                 type="button"
                 onClick={handleAddInternship}
@@ -1516,32 +1864,58 @@ function Profile() {
                   Cancel Edit
                 </button>
               )}
+
             </div>
+
           </div>
 
+
+          {/* =========================
+              CERTIFICATIONS
+              ========================= */}
+
           <div className="profile-section">
+
             <div className="profile-section-heading">
+
               <span>07</span>
+
               <div>
                 <h2>Certifications</h2>
-                <p>Add your professional certifications and credentials.</p>
+                <p>
+                  Add your professional certifications and credentials.
+                </p>
               </div>
+
             </div>
 
             {certifications.length > 0 && (
               <div className="education-list">
+
                 {certifications.map((item) => (
-                  <div key={item.id} className="education-item">
+                  <div
+                    key={item.id}
+                    className="education-item"
+                  >
+
                     <div>
+
                       <h3>{item.name}</h3>
-                      <p>{item.issuingOrganization}</p>
+
+                      <p>
+                        {item.issuingOrganization}
+                      </p>
 
                       {item.issueDate && (
-                        <span>Issued: {item.issueDate}</span>
+                        <span>
+                          Issued: {item.issueDate}
+                        </span>
                       )}
 
                       {item.credentialId && (
-                        <span>Credential ID: {item.credentialId}</span>
+                        <span>
+                          Credential ID: {item.credentialId}
+                        </span>
                       )}
 
                       {item.credentialUrl && (
@@ -1555,12 +1929,16 @@ function Profile() {
                           </a>
                         </div>
                       )}
+
                     </div>
 
                     <div className="education-actions">
+
                       <button
                         type="button"
-                        onClick={() => handleEditCertification(item)}
+                        onClick={() =>
+                          handleEditCertification(item)
+                        }
                         className="education-edit"
                       >
                         Edit
@@ -1568,20 +1946,27 @@ function Profile() {
 
                       <button
                         type="button"
-                        onClick={() => handleDeleteCertification(item.id)}
+                        onClick={() =>
+                          handleDeleteCertification(item.id)
+                        }
                         className="education-delete"
                       >
                         Delete
                       </button>
+
                     </div>
+
                   </div>
                 ))}
+
               </div>
             )}
 
             <div className="profile-form-grid">
+
               <label>
                 Certification Name
+
                 <input
                   type="text"
                   name="name"
@@ -1593,10 +1978,13 @@ function Profile() {
 
               <label>
                 Issuing Organization
+
                 <input
                   type="text"
                   name="issuingOrganization"
-                  value={certificationForm.issuingOrganization}
+                  value={
+                    certificationForm.issuingOrganization
+                  }
                   onChange={handleCertificationChange}
                   placeholder="e.g. Oracle"
                 />
@@ -1604,6 +1992,7 @@ function Profile() {
 
               <label>
                 Issue Date
+
                 <input
                   type="date"
                   name="issueDate"
@@ -1614,6 +2003,7 @@ function Profile() {
 
               <label>
                 Credential ID
+
                 <input
                   type="text"
                   name="credentialId"
@@ -1625,6 +2015,7 @@ function Profile() {
 
               <label>
                 Credential URL
+
                 <input
                   type="url"
                   name="credentialUrl"
@@ -1633,9 +2024,11 @@ function Profile() {
                   placeholder="https://example.com/certificate"
                 />
               </label>
+
             </div>
 
             <div className="education-form-actions">
+
               <button
                 type="button"
                 onClick={handleAddCertification}
@@ -1660,43 +2053,84 @@ function Profile() {
                   Cancel Edit
                 </button>
               )}
+
             </div>
+
           </div>
 
+
+          {/* =========================
+              CAREER GOAL
+              ========================= */}
+
           <div className="profile-section">
+
             <div className="profile-section-heading">
+
               <span>08</span>
+
               <div>
                 <h2>Career Goal</h2>
-                <p>Tell us where you want your career to go.</p>
+                <p>
+                  Tell us where you want your career to go.
+                </p>
               </div>
+
             </div>
 
             <label>
               Career Goal
+
               <textarea
                 name="careerGoal"
                 value={formData.careerGoal}
                 onChange={handleChange}
                 placeholder="Describe your career goal"
                 rows="5"
-                required
               />
             </label>
+
           </div>
 
-          {error && <p className="auth-error">{error}</p>}
+
+          {/* =========================
+              ERROR
+              ========================= */}
+
+          {error && (
+            <p className="auth-error">
+              {error}
+            </p>
+          )}
+
+
+          {/* =========================
+              PROFILE ACTIONS
+              ========================= */}
 
           <div className="profile-actions">
-            <Link to="/dashboard" className="profile-cancel">
+
+            <Link
+              to="/dashboard"
+              className="profile-cancel"
+            >
               Cancel
             </Link>
 
-            <button type="submit" className="auth-button" disabled={saving}>
-              {saving ? 'Saving Profile...' : 'Save Profile'}
+            <button
+              type="submit"
+              className="auth-button"
+              disabled={saving}
+            >
+              {saving
+                ? 'Saving Profile...'
+                : 'Save Profile'}
             </button>
+
           </div>
+
         </form>
+
       </section>
     </main>
   )

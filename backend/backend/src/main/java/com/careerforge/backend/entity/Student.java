@@ -25,26 +25,20 @@ public class Student {
     @Email(message = "Enter a valid email")
     private String email;
 
-    @NotBlank(message = "Phone is required")
     private String phone;
 
-    @NotBlank(message = "College is required")
     private String college;
 
-    @NotBlank(message = "Branch is required")
     private String branch;
 
-    @NotNull(message = "Semester is required")
     @Min(value = 1, message = "Semester must be at least 1")
     @Max(value = 8, message = "Semester cannot be greater than 8")
     private Integer semester;
 
-    @NotNull(message = "CGPA is required")
     @DecimalMin(value = "0.0", message = "CGPA cannot be less than 0")
     @DecimalMax(value = "10.0", message = "CGPA cannot be greater than 10")
     private Double cgpa;
 
-    @NotBlank(message = "Career goal is required")
     private String careerGoal;
 
     private String profilePhotoUrl;
@@ -72,6 +66,11 @@ public class Student {
     @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("student-assessment")
     private CareerAssessment careerAssessment;
+
+
+    // =========================
+    // GETTERS & SETTERS
+    // =========================
 
     public Long getId() {
         return id;

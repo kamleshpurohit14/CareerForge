@@ -146,14 +146,17 @@ export const api = {
   createEducation: async (studentId, education) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}/education`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(education)
-    })
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/education`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(education)
+      }
+    )
 
     const data = await response.json()
 
@@ -242,14 +245,17 @@ export const api = {
   createSkill: async (studentId, skill) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}/skills`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(skill)
-    })
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/skills`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(skill)
+      }
+    )
 
     const data = await response.json()
 
@@ -338,14 +344,17 @@ export const api = {
   createProject: async (studentId, project) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}/projects`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(project)
-    })
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/projects`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(project)
+      }
+    )
 
     const data = await response.json()
 
@@ -359,12 +368,15 @@ export const api = {
   getProjectsByStudentId: async (studentId) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}/projects`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/projects`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    })
+    )
 
     const data = await response.json()
 
@@ -415,14 +427,17 @@ export const api = {
   createCertification: async (studentId, certification) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}/certifications`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(certification)
-    })
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/certifications`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(certification)
+      }
+    )
 
     const data = await response.json()
 
@@ -436,12 +451,15 @@ export const api = {
   getCertificationsByStudentId: async (studentId) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}/certifications`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/certifications`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    })
+    )
 
     const data = await response.json()
 
@@ -511,14 +529,17 @@ export const api = {
   createInternship: async (studentId, internship) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}/internships`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(internship)
-    })
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/internships`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(internship)
+      }
+    )
 
     const data = await response.json()
 
@@ -532,12 +553,15 @@ export const api = {
   getInternshipsByStudentId: async (studentId) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}/internships`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/internships`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    })
+    )
 
     const data = await response.json()
 
@@ -601,6 +625,99 @@ export const api = {
     if (!response.ok) {
       const data = await response.json()
       throw new Error(data.message || 'Failed to delete internship')
+    }
+  },
+
+  createAssessment: async (studentId, assessment) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/assessment`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(assessment)
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to create assessment')
+    }
+
+    return data
+  },
+
+  getAssessmentByStudentId: async (studentId) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/assessment`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    if (response.status === 404) {
+      return null
+    }
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch assessment')
+    }
+
+    return data
+  },
+
+  updateAssessment: async (studentId, assessment) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/assessment`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(assessment)
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update assessment')
+    }
+
+    return data
+  },
+
+  deleteAssessment: async (studentId) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/assessment`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Failed to delete assessment')
     }
   }
 }

@@ -80,12 +80,15 @@ export const api = {
   getStudentByEmail: async (email) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/students/email/${email}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      `${API_BASE_URL}/students/email/${email}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    })
+    )
 
     const data = await response.json()
 
@@ -137,7 +140,9 @@ export const api = {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to upload profile photo')
+      throw new Error(
+        data.message || 'Failed to upload profile photo'
+      )
     }
 
     return data
@@ -464,7 +469,9 @@ export const api = {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch certifications')
+      throw new Error(
+        data.message || 'Failed to fetch certifications'
+      )
     }
 
     return data
@@ -473,17 +480,22 @@ export const api = {
   getCertificationById: async (id) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/certifications/${id}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      `${API_BASE_URL}/certifications/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    })
+    )
 
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch certification')
+      throw new Error(
+        data.message || 'Failed to fetch certification'
+      )
     }
 
     return data
@@ -492,19 +504,24 @@ export const api = {
   updateCertification: async (id, certification) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/certifications/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(certification)
-    })
+    const response = await fetch(
+      `${API_BASE_URL}/certifications/${id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(certification)
+      }
+    )
 
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to update certification')
+      throw new Error(
+        data.message || 'Failed to update certification'
+      )
     }
 
     return data
@@ -513,16 +530,21 @@ export const api = {
   deleteCertification: async (id) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/certifications/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      `${API_BASE_URL}/certifications/${id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    })
+    )
 
     if (!response.ok) {
       const data = await response.json()
-      throw new Error(data.message || 'Failed to delete certification')
+      throw new Error(
+        data.message || 'Failed to delete certification'
+      )
     }
   },
 
@@ -566,7 +588,9 @@ export const api = {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch internships')
+      throw new Error(
+        data.message || 'Failed to fetch internships'
+      )
     }
 
     return data
@@ -575,17 +599,22 @@ export const api = {
   getInternshipById: async (id) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/internships/${id}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      `${API_BASE_URL}/internships/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    })
+    )
 
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch internship')
+      throw new Error(
+        data.message || 'Failed to fetch internship'
+      )
     }
 
     return data
@@ -594,19 +623,24 @@ export const api = {
   updateInternship: async (id, internship) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/internships/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(internship)
-    })
+    const response = await fetch(
+      `${API_BASE_URL}/internships/${id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(internship)
+      }
+    )
 
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to update internship')
+      throw new Error(
+        data.message || 'Failed to update internship'
+      )
     }
 
     return data
@@ -615,16 +649,21 @@ export const api = {
   deleteInternship: async (id) => {
     const token = localStorage.getItem('token')
 
-    const response = await fetch(`${API_BASE_URL}/internships/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      `${API_BASE_URL}/internships/${id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    })
+    )
 
     if (!response.ok) {
       const data = await response.json()
-      throw new Error(data.message || 'Failed to delete internship')
+      throw new Error(
+        data.message || 'Failed to delete internship'
+      )
     }
   },
 
@@ -646,7 +685,9 @@ export const api = {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to create assessment')
+      throw new Error(
+        data.message || 'Failed to create assessment'
+      )
     }
 
     return data
@@ -672,7 +713,9 @@ export const api = {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch assessment')
+      throw new Error(
+        data.message || 'Failed to fetch assessment'
+      )
     }
 
     return data
@@ -696,7 +739,9 @@ export const api = {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to update assessment')
+      throw new Error(
+        data.message || 'Failed to update assessment'
+      )
     }
 
     return data
@@ -717,7 +762,33 @@ export const api = {
 
     if (!response.ok) {
       const data = await response.json()
-      throw new Error(data.message || 'Failed to delete assessment')
+      throw new Error(
+        data.message || 'Failed to delete assessment'
+      )
     }
+  },
+
+  getAIGuidance: async (studentId) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(
+      `${API_BASE_URL}/ai/${studentId}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || 'Failed to fetch AI guidance'
+      )
+    }
+
+    return data
   }
 }

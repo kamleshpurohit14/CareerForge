@@ -5,17 +5,28 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import Assessment from './pages/Assessment'
+import AIGuidance from './pages/AIGuidance'
 import ProtectedRoute from './components/ProtectedRoute'
 import './App.css'
 
 function App() {
   return (
     <Routes>
+
+      {/* =========================
+          PUBLIC ROUTES
+          ========================= */}
+
       <Route path="/" element={<Home />} />
 
       <Route path="/login" element={<Login />} />
 
       <Route path="/register" element={<Register />} />
+
+
+      {/* =========================
+          PROTECTED ROUTES
+          ========================= */}
 
       <Route
         path="/dashboard"
@@ -43,6 +54,20 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      {/* =========================
+          AI CAREER NAVIGATOR
+          ========================= */}
+
+      <Route
+        path="/ai-guidance"
+        element={
+          <ProtectedRoute>
+            <AIGuidance />
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
   )
 }

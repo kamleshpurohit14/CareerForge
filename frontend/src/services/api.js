@@ -781,11 +781,11 @@ export const api = {
       }
     )
 
-    const data = await response.json()
+    const data = await response.text()
 
     if (!response.ok) {
       throw new Error(
-        data.message || 'Failed to fetch AI guidance'
+        data || 'Failed to fetch AI guidance'
       )
     }
 

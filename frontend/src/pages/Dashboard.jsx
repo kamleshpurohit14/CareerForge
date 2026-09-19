@@ -264,6 +264,28 @@ function Dashboard() {
 
               </article>
 
+
+              {/* AI Career Guidance */}
+              <article className="dashboard-card">
+
+                <div className="dashboard-card-top">
+                  <span>04</span>
+                  <span>AI Guidance</span>
+                </div>
+
+                <h2>Get AI career guidance</h2>
+
+                <p>
+                  Get personalized career insights based on your
+                  profile, skills, projects and assessment.
+                </p>
+
+                <Link to="/ai-guidance">
+                  Explore AI Guidance →
+                </Link>
+
+              </article>
+
             </div>
 
 

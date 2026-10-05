@@ -126,10 +126,11 @@ function AIGuidance() {
     }
 
     /*
-     * If the student has the skill but no level,
-     * show a basic presence score.
+     * If the skill exists but no recognized level is stored,
+     * do not invent a percentage. Show 0 until the skill
+     * level is actually assessed.
      */
-    return 60
+    return 0
   }
 
   const javaStrength = calculateSkillStrength('java')

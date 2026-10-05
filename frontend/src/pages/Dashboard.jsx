@@ -94,8 +94,6 @@ function Dashboard() {
       careerGoalCompletion
   )
 
-  // Check whether the error means that the student profile
-  // has not been created yet.
   const isProfileNotCreated =
     error &&
     error.toLowerCase().includes('student not found')
@@ -282,6 +280,29 @@ function Dashboard() {
 
                 <Link to="/ai-guidance">
                   Explore AI Guidance →
+                </Link>
+
+              </article>
+
+
+              {/* Resume Builder */}
+              <article className="dashboard-card">
+
+                <div className="dashboard-card-top">
+                  <span>05</span>
+                  <span>Resume Builder</span>
+                </div>
+
+                <h2>Build your professional resume</h2>
+
+                <p>
+                  Create a professional resume using your
+                  CareerForge profile, skills, projects and
+                  achievements.
+                </p>
+
+                <Link to="/resume-builder">
+                  Build Resume →
                 </Link>
 
               </article>

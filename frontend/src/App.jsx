@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import Assessment from './pages/Assessment'
 import AIGuidance from './pages/AIGuidance'
+import ResumeBuilder from './pages/ResumeBuilder'
 import ProtectedRoute from './components/ProtectedRoute'
 import './App.css'
 
@@ -55,6 +56,7 @@ function App() {
         }
       />
 
+
       {/* =========================
           AI CAREER NAVIGATOR
           ========================= */}
@@ -64,6 +66,20 @@ function App() {
         element={
           <ProtectedRoute>
             <AIGuidance />
+          </ProtectedRoute>
+        }
+      />
+
+
+      {/* =========================
+          RESUME BUILDER
+          ========================= */}
+
+      <Route
+        path="/resume-builder"
+        element={
+          <ProtectedRoute>
+            <ResumeBuilder />
           </ProtectedRoute>
         }
       />

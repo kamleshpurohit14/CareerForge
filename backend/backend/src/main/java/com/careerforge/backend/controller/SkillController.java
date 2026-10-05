@@ -12,7 +12,8 @@ import java.util.List;
 @RequestMapping("/api")
 public class SkillController {
 
-    @Autowired
+    
+ @Autowired
     private SkillService skillService;
 
     @PostMapping("/students/{studentId}/skills")

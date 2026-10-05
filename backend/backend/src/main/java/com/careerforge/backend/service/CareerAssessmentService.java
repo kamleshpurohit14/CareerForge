@@ -51,15 +51,47 @@ public class CareerAssessmentService {
             return null;
         }
 
-        assessment.setInterests(assessmentDetails.getInterests());
+        // Existing assessment fields
+        assessment.setInterests(
+                assessmentDetails.getInterests()
+        );
+
         assessment.setPreferredDomain(
-                assessmentDetails.getPreferredDomain());
+                assessmentDetails.getPreferredDomain()
+        );
+
         assessment.setExperienceLevel(
-                assessmentDetails.getExperienceLevel());
+                assessmentDetails.getExperienceLevel()
+        );
+
         assessment.setPreferredRole(
-                assessmentDetails.getPreferredRole());
+                assessmentDetails.getPreferredRole()
+        );
+
         assessment.setAssessmentScore(
-                assessmentDetails.getAssessmentScore());
+                assessmentDetails.getAssessmentScore()
+        );
+
+        // New assessment data
+        assessment.setAnswersJson(
+                assessmentDetails.getAnswersJson()
+        );
+
+        assessment.setCareerSignalsJson(
+                assessmentDetails.getCareerSignalsJson()
+        );
+
+        assessment.setWorkingStyleJson(
+                assessmentDetails.getWorkingStyleJson()
+        );
+
+        assessment.setCareerPrioritiesJson(
+                assessmentDetails.getCareerPrioritiesJson()
+        );
+
+        assessment.setScenarioSignalsJson(
+                assessmentDetails.getScenarioSignalsJson()
+        );
 
         return careerAssessmentRepository.save(assessment);
     }

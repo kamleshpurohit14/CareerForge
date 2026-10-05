@@ -32,10 +32,33 @@ public class CareerAssessment {
     @Max(value = 100, message = "Assessment score cannot be greater than 100")
     private Integer assessmentScore;
 
+    /*
+     * New assessment data
+     * Stored as JSON strings for flexibility and backward compatibility.
+     */
+    @Column(columnDefinition = "TEXT")
+    private String answersJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String careerSignalsJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String workingStyleJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String careerPrioritiesJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String scenarioSignalsJson;
+
     @OneToOne
     @JoinColumn(name = "student_id", nullable = false, unique = true)
     @JsonBackReference("student-assessment")
     private Student student;
+
+    // =========================
+    // Getters and Setters
+    // =========================
 
     public Long getId() {
         return id;
@@ -83,6 +106,46 @@ public class CareerAssessment {
 
     public void setAssessmentScore(Integer assessmentScore) {
         this.assessmentScore = assessmentScore;
+    }
+
+    public String getAnswersJson() {
+        return answersJson;
+    }
+
+    public void setAnswersJson(String answersJson) {
+        this.answersJson = answersJson;
+    }
+
+    public String getCareerSignalsJson() {
+        return careerSignalsJson;
+    }
+
+    public void setCareerSignalsJson(String careerSignalsJson) {
+        this.careerSignalsJson = careerSignalsJson;
+    }
+
+    public String getWorkingStyleJson() {
+        return workingStyleJson;
+    }
+
+    public void setWorkingStyleJson(String workingStyleJson) {
+        this.workingStyleJson = workingStyleJson;
+    }
+
+    public String getCareerPrioritiesJson() {
+        return careerPrioritiesJson;
+    }
+
+    public void setCareerPrioritiesJson(String careerPrioritiesJson) {
+        this.careerPrioritiesJson = careerPrioritiesJson;
+    }
+
+    public String getScenarioSignalsJson() {
+        return scenarioSignalsJson;
+    }
+
+    public void setScenarioSignalsJson(String scenarioSignalsJson) {
+        this.scenarioSignalsJson = scenarioSignalsJson;
     }
 
     public Student getStudent() {

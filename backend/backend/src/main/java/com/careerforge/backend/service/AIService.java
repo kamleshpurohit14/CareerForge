@@ -1,5 +1,7 @@
+
 package com.careerforge.backend.service;
 
+import com.careerforge.backend.dto.ResumeSummaryRequest;
 import com.careerforge.backend.entity.CareerAssessment;
 import com.careerforge.backend.entity.Project;
 import com.careerforge.backend.entity.Skill;
@@ -19,6 +21,7 @@ public class AIService {
         this.studentService = studentService;
     }
 
+    // Existing AI Career Guidance — kept unchanged
     public String generateCareerInsight(Long studentId) {
 
         Student student = studentService.getStudentById(studentId);
@@ -53,14 +56,17 @@ public class AIService {
 
         profile.append("Skills:\n");
 
-        if (student.getSkills() != null && !student.getSkills().isEmpty()) {
+        if (student.getSkills() != null
+                && !student.getSkills().isEmpty()) {
 
             for (Skill skill : student.getSkills()) {
 
                 profile.append("- ")
                         .append(skill.getName());
 
-                if (skill.getLevel() != null && !skill.getLevel().isBlank()) {
+                if (skill.getLevel() != null
+                        && !skill.getLevel().isBlank()) {
+
                     profile.append(" (Level: ")
                             .append(skill.getLevel())
                             .append(")");
@@ -74,10 +80,10 @@ public class AIService {
         }
 
         profile.append("\n");
-
         profile.append("Projects:\n");
 
-        if (student.getProjects() != null && !student.getProjects().isEmpty()) {
+        if (student.getProjects() != null
+                && !student.getProjects().isEmpty()) {
 
             for (Project project : student.getProjects()) {
 
@@ -138,8 +144,7 @@ public class AIService {
             profile.append("- Career assessment not completed yet.\n");
         }
 
-        String prompt =
-                """
+        String prompt = """
                 You are a professional career guidance assistant.
 
                 Analyze the student's complete career profile given below.
@@ -159,8 +164,7 @@ public class AIService {
 
                 Student Profile:
 
-                """
-                + profile;
+                """ + profile;
 
         GenerateContentResponse response =
                 geminiClient.models.generateContent(
@@ -176,5 +180,66 @@ public class AIService {
         }
 
         return responseText;
+    }
+
+    // New AI Resume Summary Generator
+    public String generateResumeSummary(ResumeSummaryRequest request) {
+
+        String prompt = """
+                You are a professional resume writer.
+
+                Generate a concise, professional resume summary
+                for a student or entry-level job candidate.
+
+                Use only the details provided below.
+                Do not invent skills, experience, achievements,
+                qualifications, or certifications.
+
+                Keep the summary between 50 and 80 words.
+                Use clear, ATS-friendly professional English.
+                Do not add a heading, bullet points, or quotation marks.
+
+                Education: %s
+                College: %s
+                Graduation Year: %s
+                CGPA: %s
+                Skills: %s
+                Projects: %s
+                Experience: %s
+                Certifications: %s
+                """.formatted(
+                safe(request.getDegree()),
+                safe(request.getCollege()),
+                safe(request.getGraduationYear()),
+                safe(request.getCgpa()),
+                safe(request.getSkills()),
+                safe(request.getProjects()),
+                safe(request.getExperience()),
+                safe(request.getCertifications())
+        );
+
+        GenerateContentResponse response =
+                geminiClient.models.generateContent(
+                        "gemini-flash-latest",
+                        prompt,
+                        null
+                );
+
+        String summary = response.text();
+
+        if (summary == null || summary.isBlank()) {
+            throw new IllegalStateException(
+                    "AI could not generate a resume summary."
+            );
+        }
+
+        return summary.trim();
+    }
+
+    // Handle missing or blank values
+    private String safe(String value) {
+        return value == null || value.isBlank()
+                ? "Not provided"
+                : value.trim();
     }
 }

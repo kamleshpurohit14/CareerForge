@@ -2,6 +2,7 @@
 package com.careerforge.backend.service;
 
 import com.careerforge.backend.dto.ResumeSummaryRequest;
+import com.careerforge.backend.dto.ProjectDescriptionRequest;
 import com.careerforge.backend.entity.CareerAssessment;
 import com.careerforge.backend.entity.Project;
 import com.careerforge.backend.entity.Skill;
@@ -182,7 +183,7 @@ public class AIService {
         return responseText;
     }
 
-    // New AI Resume Summary Generator
+    // Existing AI Resume Summary Generator — kept unchanged
     public String generateResumeSummary(ResumeSummaryRequest request) {
 
         String prompt = """
@@ -234,6 +235,65 @@ public class AIService {
         }
 
         return summary.trim();
+    }
+
+    // New AI Project Description Improver
+    public String improveProjectDescription(
+            ProjectDescriptionRequest request) {
+
+        if (request == null
+                || request.getDescription() == null
+                || request.getDescription().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Please provide a project description."
+            );
+        }
+
+        String prompt = """
+                You are a professional resume writer
+                specializing in software development projects.
+
+                Rewrite the supplied project description into
+                clear, professional, ATS-friendly English.
+
+                Rules:
+                - Preserve the original meaning.
+                - Use only facts supplied in the request.
+                - Do not invent metrics, achievements, features,
+                  responsibilities, or technical skills.
+                - Mention technologies only when provided.
+                - Keep the result concise, around 2 to 4 sentences.
+                - Return only the improved description.
+                - Do not add a heading or quotation marks.
+
+                Project Title: %s
+                Technologies: %s
+                Original Description: %s
+                """.formatted(
+                safe(request.getTitle()),
+                safe(request.getTechnologies()),
+                request.getDescription().trim()
+        );
+
+        GenerateContentResponse response =
+                geminiClient.models.generateContent(
+                        "gemini-flash-latest",
+                        prompt,
+                        null
+                );
+
+        String improvedDescription = response.text();
+
+        if (improvedDescription == null
+                || improvedDescription.isBlank()) {
+
+            throw new IllegalStateException(
+                    "AI could not improve the project description."
+            );
+        }
+
+        return improvedDescription.trim();
     }
 
     // Handle missing or blank values

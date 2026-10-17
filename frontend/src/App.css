@@ -1246,6 +1246,50 @@
 }
 
 
+/* Saved Resume Actions */
+.saved-resume-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.saved-resume-actions .saved-resume-open:disabled,
+.saved-resume-actions .saved-resume-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.saved-resume-actions .saved-resume-delete {
+  padding: 10px 16px;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  background: transparent;
+  color: #dc2626;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.saved-resume-actions .saved-resume-delete:hover:not(:disabled) {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+@media (max-width: 700px) {
+  .saved-resume-actions {
+    width: 100%;
+  }
+
+  .saved-resume-actions button {
+    flex: 1;
+  }
+}
+
+
+
 /* =========================================================
    PROFILE
    ========================================================= */

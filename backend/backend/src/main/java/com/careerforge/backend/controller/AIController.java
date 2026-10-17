@@ -2,6 +2,7 @@
 package com.careerforge.backend.controller;
 
 import com.careerforge.backend.dto.ResumeSummaryRequest;
+import com.careerforge.backend.dto.ProjectDescriptionRequest;
 import com.careerforge.backend.service.AIService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class AIController {
         this.aiService = aiService;
     }
 
-    // Existing AI Career Guidance API
+    // Existing AI Career Guidance API — kept unchanged
     @GetMapping("/{studentId}")
     public ResponseEntity<String> generateCareerInsight(
             @PathVariable Long studentId) {
@@ -27,7 +28,7 @@ public class AIController {
         return ResponseEntity.ok(response);
     }
 
-    // New AI Resume Summary API
+    // Existing AI Resume Summary API — kept unchanged
     @PostMapping("/resume-summary")
     public ResponseEntity<String> generateResumeSummary(
             @RequestBody ResumeSummaryRequest request) {
@@ -36,5 +37,16 @@ public class AIController {
                 aiService.generateResumeSummary(request);
 
         return ResponseEntity.ok(summary);
+    }
+
+    // New AI Project Description Improver API
+    @PostMapping("/project-description")
+    public ResponseEntity<String> improveProjectDescription(
+            @RequestBody ProjectDescriptionRequest request) {
+
+        String description =
+                aiService.improveProjectDescription(request);
+
+        return ResponseEntity.ok(description);
     }
 }

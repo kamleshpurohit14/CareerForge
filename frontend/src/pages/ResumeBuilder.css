@@ -594,3 +594,230 @@
     margin-top: 20px;
   }
 }
+
+
+/* ================================
+   MY SAVED RESUMES
+================================ */
+
+.dashboard-saved-resumes {
+  margin-top: 36px;
+  width: 100%;
+}
+
+.saved-resumes-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.saved-resumes-eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.saved-resumes-heading h2 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 26px;
+  font-weight: 750;
+  letter-spacing: -0.6px;
+}
+
+.saved-resumes-heading p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.saved-resume-create {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 17px;
+  border: 1px solid #1d4ed8;
+  border-radius: 10px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.saved-resume-create:hover {
+  background: #1e40af;
+  box-shadow: 0 5px 14px rgba(29, 78, 216, 0.18);
+  transform: translateY(-1px);
+}
+
+.saved-resumes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.saved-resume-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+  padding: 23px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.saved-resume-card:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.07);
+  transform: translateY(-2px);
+}
+
+.saved-resume-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 54px;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  flex-shrink: 0;
+}
+
+.saved-resume-icon span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.saved-resume-details {
+  width: 100%;
+  min-width: 0;
+}
+
+.saved-resume-details h3 {
+  margin: 0 0 7px;
+  overflow-wrap: anywhere;
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.saved-resume-details p {
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.saved-resume-date {
+  display: inline-block;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.saved-resume-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 15px;
+  border: 1px solid #1d4ed8;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.saved-resume-open:hover {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.dashboard-empty-state {
+  padding: 28px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.dashboard-empty-state h3 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 19px;
+}
+
+.dashboard-empty-state p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.dashboard-empty-state a {
+  display: inline-block;
+  margin-top: 8px;
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.dashboard-empty-state a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive layout */
+@media (max-width: 700px) {
+  .dashboard-saved-resumes {
+    margin-top: 28px;
+  }
+
+  .saved-resumes-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .saved-resumes-heading h2 {
+    font-size: 23px;
+  }
+
+  .saved-resumes-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .saved-resume-card {
+    padding: 19px;
+  }
+
+  .saved-resume-create {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

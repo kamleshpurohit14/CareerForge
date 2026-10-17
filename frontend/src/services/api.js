@@ -1,3 +1,4 @@
+
 const API_BASE_URL = 'http://localhost:8080/api'
 
 export const api = {
@@ -768,6 +769,7 @@ export const api = {
     }
   },
 
+  // Existing AI Career Guidance
   getAIGuidance: async (studentId) => {
     const token = localStorage.getItem('token')
 
@@ -790,5 +792,138 @@ export const api = {
     }
 
     return data
-  }
+  },
+
+  // New AI Resume Summary Generator
+  generateResumeSummary: async (resumeData) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(
+      `${API_BASE_URL}/ai/resume-summary`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(resumeData)
+      }
+    )
+
+    const data = await response.text()
+
+    if (!response.ok) {
+      throw new Error(
+        data || 'Failed to generate AI resume summary'
+      )
+    }
+
+    return data
+  },
+
+    // Save Resume to Database
+  saveResume: async (resumeData) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/resumes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(resumeData)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to save resume')
+    }
+
+    return data
+  },
+
+  // Get all saved resumes for logged-in user
+  getMyResumes: async () => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/resumes`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch saved resumes')
+    }
+
+    return data
+  },
+
+  // Get a specific saved resume
+  getMyResume: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/resumes/${id}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch resume')
+    }
+
+    return data
+  },
+  // Delete a saved resume
+  deleteResume: async (id) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/resumes/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.message || 'Failed to delete resume')
+    }
+  },
+
+    // AI Project Description Improver
+  improveProjectDescription: async (projectData) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(
+      `${API_BASE_URL}/ai/project-description`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(projectData)
+      }
+    )
+
+    const data = await response.text()
+
+    if (!response.ok) {
+      throw new Error(
+        data || 'Failed to improve project description'
+      )
+    }
+
+    return data
+  },
+
 }

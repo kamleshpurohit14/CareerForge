@@ -74,6 +74,7 @@ function Profile() {
   const [educationSaving, setEducationSaving] = useState(false)
   const [skillSaving, setSkillSaving] = useState(false)
   const [projectSaving, setProjectSaving] = useState(false)
+  const [improvingDescription, setImprovingDescription] = useState(false)
   const [internshipSaving, setInternshipSaving] = useState(false)
   const [certificationSaving, setCertificationSaving] = useState(false)
 
@@ -218,6 +219,39 @@ function Profile() {
       ...projectForm,
       [e.target.name]: e.target.value
     })
+  }
+
+  const handleImproveProjectDescription = async () => {
+    const title = projectForm.title.trim()
+    const description = projectForm.description.trim()
+
+    if (!title || !description) {
+      setError('Please enter project title and description before using AI.')
+      return
+    }
+
+    setError('')
+    setImprovingDescription(true)
+
+    try {
+      const improvedDescription = await api.improveProjectDescription({
+        projectName: title,
+        description
+      })
+
+      if (typeof improvedDescription !== 'string' || !improvedDescription.trim()) {
+        throw new Error('AI returned an empty project description.')
+      }
+
+      setProjectForm((currentForm) => ({
+        ...currentForm,
+        description: improvedDescription.trim()
+      }))
+    } catch (err) {
+      setError(err.message || 'Failed to improve project description with AI.')
+    } finally {
+      setImprovingDescription(false)
+    }
   }
 
   const handleInternshipChange = (e) => {
@@ -1608,6 +1642,19 @@ function Profile() {
                 rows="5"
               />
             </label>
+
+            <div className="education-form-actions">
+              <button
+                type="button"
+                onClick={handleImproveProjectDescription}
+                className="auth-button education-add"
+                disabled={improvingDescription || projectSaving}
+              >
+                {improvingDescription
+                  ? 'Improving Description...'
+                  : '✨ Improve with AI'}
+              </button>
+            </div>
 
             <div className="education-form-actions">
 

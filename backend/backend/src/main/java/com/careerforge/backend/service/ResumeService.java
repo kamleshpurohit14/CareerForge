@@ -26,8 +26,11 @@ public class ResumeService {
         this.userRepository = userRepository;
     }
 
+    // Save a new resume
     @Transactional
-    public ResumeResponse saveResume(String email, ResumeRequest request) {
+    public ResumeResponse saveResume(
+            String email,
+            ResumeRequest request) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
@@ -44,6 +47,49 @@ public class ResumeService {
         Resume resume = new Resume();
         resume.setStudent(student);
 
+        copyResumeData(request, resume);
+
+        Resume savedResume = resumeRepository.save(resume);
+
+        return new ResumeResponse(savedResume);
+    }
+
+    // Update an existing resume owned by the logged-in student
+    @Transactional
+    public ResumeResponse updateResume(
+            Long resumeId,
+            String email,
+            ResumeRequest request) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        Student student = user.getStudent();
+
+        if (student == null) {
+            throw new IllegalStateException(
+                    "Student profile not found. Please complete your profile first."
+            );
+        }
+
+        Resume resume = resumeRepository
+                .findByIdAndStudentId(resumeId, student.getId())
+                .orElseThrow(() ->
+                        new RuntimeException("Resume not found"));
+
+        copyResumeData(request, resume);
+
+        Resume updatedResume = resumeRepository.save(resume);
+
+        return new ResumeResponse(updatedResume);
+    }
+
+    // Copy request fields into the resume entity
+    private void copyResumeData(
+            ResumeRequest request,
+            Resume resume) {
+
         resume.setFullName(request.getFullName());
         resume.setEmail(request.getEmail());
         resume.setPhone(request.getPhone());
@@ -59,12 +105,9 @@ public class ResumeService {
         resume.setProjects(request.getProjects());
         resume.setExperience(request.getExperience());
         resume.setCertifications(request.getCertifications());
-
-        Resume savedResume = resumeRepository.save(resume);
-
-        return new ResumeResponse(savedResume);
     }
 
+    // Get all resumes belonging to the logged-in student
     @Transactional(readOnly = true)
     public List<ResumeResponse> getStudentResumes(String email) {
 
@@ -86,8 +129,11 @@ public class ResumeService {
                 .toList();
     }
 
+    // Get one resume belonging to the logged-in student
     @Transactional(readOnly = true)
-    public ResumeResponse getResume(Long resumeId, String email) {
+    public ResumeResponse getResume(
+            Long resumeId,
+            String email) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
@@ -109,6 +155,7 @@ public class ResumeService {
         return new ResumeResponse(resume);
     }
 
+    // Delete a resume belonging to the logged-in student
     @Transactional
     public void deleteResume(Long resumeId, String email) {
 

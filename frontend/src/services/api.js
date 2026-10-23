@@ -123,8 +123,8 @@ export const api = {
 
   uploadProfilePhoto: async (studentId, file) => {
     const token = localStorage.getItem('token')
-
     const formData = new FormData()
+
     formData.append('file', file)
 
     const response = await fetch(
@@ -794,7 +794,7 @@ export const api = {
     return data
   },
 
-  // New AI Resume Summary Generator
+  // AI Resume Summary Generator
   generateResumeSummary: async (resumeData) => {
     const token = localStorage.getItem('token')
 
@@ -821,7 +821,7 @@ export const api = {
     return data
   },
 
-    // Save Resume to Database
+  // Save a new resume
   saveResume: async (resumeData) => {
     const token = localStorage.getItem('token')
 
@@ -843,7 +843,7 @@ export const api = {
     return data
   },
 
-  // Get all saved resumes for logged-in user
+  // Get all saved resumes for the logged-in user
   getMyResumes: async () => {
     const token = localStorage.getItem('token')
 
@@ -882,6 +882,29 @@ export const api = {
 
     return data
   },
+
+  // Update an existing saved resume
+  updateResume: async (id, resumeData) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_BASE_URL}/resumes/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(resumeData)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update resume')
+    }
+
+    return data
+  },
+
   // Delete a saved resume
   deleteResume: async (id) => {
     const token = localStorage.getItem('token')
@@ -899,7 +922,7 @@ export const api = {
     }
   },
 
-    // AI Project Description Improver
+  // AI Project Description Improver
   improveProjectDescription: async (projectData) => {
     const token = localStorage.getItem('token')
 
@@ -926,4 +949,54 @@ export const api = {
     return data
   },
 
+  
+  // Job Recommendation Engine
+  getRecommendations: async (studentId) => {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(
+      `${API_BASE_URL}/recommendations/${studentId}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || 'Failed to fetch job recommendations'
+      )
+    }
+
+    return data
+  },
+
+
+    getRoadmap: async (careerGoal = "Software Developer") => {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_BASE_URL}/roadmap?careerGoal=${encodeURIComponent(careerGoal)}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch career roadmap");
+  }
+
+  return data;
+},
+
 }
+

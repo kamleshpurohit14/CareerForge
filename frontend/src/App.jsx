@@ -9,6 +9,7 @@ import AIGuidance from './pages/AIGuidance'
 import ResumeBuilder from './pages/ResumeBuilder'
 import ProtectedRoute from './components/ProtectedRoute'
 import './App.css'
+import CareerRoadmap from './pages/CareerRoadmap'
 
 function App() {
   return (
@@ -83,6 +84,15 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+  path="/career-roadmap"
+  element={
+    <ProtectedRoute>
+      <CareerRoadmap />
+    </ProtectedRoute>
+  }
+/>
 
     </Routes>
   )

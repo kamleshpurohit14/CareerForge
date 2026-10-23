@@ -11,6 +11,9 @@ function Dashboard() {
   const [projects, setProjects] = useState([])
   const [certifications, setCertifications] = useState([])
   const [savedResumes, setSavedResumes] = useState([])
+  const [recommendations, setRecommendations] = useState(null)
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false)
+  const [recommendationsError, setRecommendationsError] = useState('')
   const [resumesError, setResumesError] = useState('')
   const [deletingResumeId, setDeletingResumeId] = useState(null)
   const [deleteError, setDeleteError] = useState('')
@@ -57,6 +60,41 @@ function Dashboard() {
       active = false
     }
   }, [email, navigate])
+
+  // Load personalized job recommendations after the student profile is loaded
+  useEffect(() => {
+    let active = true
+
+    const loadRecommendations = async () => {
+      if (!student?.id || !localStorage.getItem('token')) return
+
+      setRecommendationsLoading(true)
+      setRecommendationsError('')
+
+      try {
+        const data = await api.getRecommendations(student.id)
+        if (active) {
+          setRecommendations(data)
+        }
+      } catch (err) {
+        if (active) {
+          setRecommendationsError(
+            err.message || 'Could not load job recommendations'
+          )
+        }
+      } finally {
+        if (active) {
+          setRecommendationsLoading(false)
+        }
+      }
+    }
+
+    loadRecommendations()
+
+    return () => {
+      active = false
+    }
+  }, [student?.id])
 
   useEffect(() => {
     let active = true
@@ -309,6 +347,19 @@ function Dashboard() {
                 </p>
                 <Link to="/resume-builder">Build Resume →</Link>
               </article>
+
+              <article className="dashboard-card">
+                <div className="dashboard-card-top">
+                  <span>06</span>
+                  <span>Job Recommendations</span>
+                </div>
+                <h2>Explore suitable career roles</h2>
+                <p>
+                  Discover career paths and skills to learn based
+                  on your profile and career assessment.
+                </p>
+                <a href="#job-recommendations">View Recommendations ↓</a>
+              </article>
             </div>
 
             <section className="dashboard-stats">
@@ -328,6 +379,132 @@ function Dashboard() {
                 <span>Certifications</span>
                 <strong>{certificationsCount}</strong>
               </div>
+            </section>
+
+            {/* Job Recommendations */}
+            <section
+              className="dashboard-saved-resumes"
+              id="job-recommendations"
+            >
+              <div className="saved-resumes-heading">
+                <div>
+                  <span className="saved-resumes-eyebrow">
+                    CAREER MATCH
+                  </span>
+                  <h2>Your Job Recommendations</h2>
+                  <p>
+                    Career paths and skills suggested from your current profile.
+                  </p>
+                </div>
+              </div>
+
+              {recommendationsLoading && (
+                <div className="dashboard-card">
+                  <h3>Finding suitable career paths...</h3>
+                  <p>Checking your profile and assessment details.</p>
+                </div>
+              )}
+
+              {!recommendationsLoading && recommendationsError && (
+                <div className="dashboard-card" role="alert">
+                  <h3>Recommendations unavailable</h3>
+                  <p>{recommendationsError}</p>
+                  <button
+                    type="button"
+                    className="saved-resume-create"
+                    onClick={() => {
+                      if (student?.id) {
+                        setRecommendationsError('')
+                        setRecommendationsLoading(true)
+                        api.getRecommendations(student.id)
+                          .then(setRecommendations)
+                          .catch((err) =>
+                            setRecommendationsError(
+                              err.message || 'Could not load job recommendations'
+                            )
+                          )
+                          .finally(() => setRecommendationsLoading(false))
+                      }
+                    }}
+                  >
+                    Try Again
+                  </button>
+                </div>
+              )}
+
+              {!recommendationsLoading &&
+                !recommendationsError &&
+                recommendations && (
+                  <div className="saved-resumes-grid">
+                    <article className="dashboard-card saved-resume-card">
+                      <div className="dashboard-card-top">
+                        <span>YOUR PRIMARY MATCH</span>
+                      </div>
+                      <h3>{recommendations.primaryCareer || 'Software Developer'}</h3>
+                      <p>{recommendations.reason || 'Based on your current profile.'}</p>
+                    </article>
+
+                    <article className="dashboard-card saved-resume-card">
+                      <div className="dashboard-card-top">
+                        <span>RECOMMENDED CAREERS</span>
+                      </div>
+                      {Array.isArray(recommendations.recommendedCareers) &&
+                      recommendations.recommendedCareers.length > 0 ? (
+                        <ul>
+                          {recommendations.recommendedCareers.map((career) => (
+                            <li key={career}>{career}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No career roles available yet.</p>
+                      )}
+                    </article>
+
+                    <article className="dashboard-card saved-resume-card">
+                      <div className="dashboard-card-top">
+                        <span>SKILLS TO LEARN</span>
+                      </div>
+                      {Array.isArray(recommendations.recommendedSkills) &&
+                      recommendations.recommendedSkills.length > 0 ? (
+                        <ul>
+                          {recommendations.recommendedSkills.map((skill) => (
+                            <li key={skill}>{skill}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No skill suggestions available.</p>
+                      )}
+                    </article>
+
+                    <article className="dashboard-card saved-resume-card">
+                      <div className="dashboard-card-top">
+                        <span>YOUR SKILL GAPS</span>
+                      </div>
+                      {Array.isArray(recommendations.skillGaps) &&
+                      recommendations.skillGaps.length > 0 ? (
+                        <ul>
+                          {recommendations.skillGaps.map((skill) => (
+                            <li key={skill}>{skill}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>Great! No skill gaps were identified by the current rules.</p>
+                      )}
+                    </article>
+                  </div>
+                )}
+
+              {!recommendationsLoading &&
+                !recommendationsError &&
+                !recommendations && (
+                  <div className="dashboard-card">
+                    <h3>Recommendations not available yet</h3>
+                    <p>
+                      Complete your profile and career assessment to get more
+                      relevant suggestions.
+                    </p>
+                  </div>
+                )}
             </section>
 
             {/* My Saved Resumes */}

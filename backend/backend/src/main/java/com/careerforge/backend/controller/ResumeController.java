@@ -37,6 +37,22 @@ public class ResumeController {
                 .body(response);
     }
 
+    // Update an existing resume
+    @PutMapping("/{resumeId}")
+    public ResponseEntity<ResumeResponse> updateResume(
+            @PathVariable Long resumeId,
+            @RequestBody ResumeRequest request,
+            Authentication authentication) {
+
+        ResumeResponse response = resumeService.updateResume(
+                resumeId,
+                authentication.getName(),
+                request
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
     // Get all resumes belonging to the logged-in user
     @GetMapping
     public ResponseEntity<List<ResumeResponse>> getMyResumes(

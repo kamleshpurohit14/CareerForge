@@ -17,12 +17,17 @@ public class AIService {
     private final Client geminiClient;
     private final StudentService studentService;
 
-    public AIService(Client geminiClient, StudentService studentService) {
+    private static final int MAX_RETRIES = 3;
+    private static final long INITIAL_RETRY_DELAY_MS = 1000;
+
+    public AIService(
+            Client geminiClient,
+            StudentService studentService) {
         this.geminiClient = geminiClient;
         this.studentService = studentService;
     }
 
-    // Existing AI Career Guidance — kept unchanged
+    // Existing AI Career Guidance
     public String generateCareerInsight(Long studentId) {
 
         Student student = studentService.getStudentById(studentId);
@@ -80,8 +85,7 @@ public class AIService {
             profile.append("- No skills added yet.\n");
         }
 
-        profile.append("\n");
-        profile.append("Projects:\n");
+        profile.append("\nProjects:\n");
 
         if (student.getProjects() != null
                 && !student.getProjects().isEmpty()) {
@@ -183,8 +187,14 @@ public class AIService {
         return responseText;
     }
 
-    // Existing AI Resume Summary Generator — kept unchanged
+    // AI Resume Summary Generator with temporary-error retries
     public String generateResumeSummary(ResumeSummaryRequest request) {
+
+        if (request == null) {
+            throw new IllegalArgumentException(
+                    "Resume details are required."
+            );
+        }
 
         String prompt = """
                 You are a professional resume writer.
@@ -220,24 +230,97 @@ public class AIService {
         );
 
         GenerateContentResponse response =
-                geminiClient.models.generateContent(
-                        "gemini-flash-latest",
-                        prompt,
-                        null
-                );
+                generateResumeSummaryWithRetry(prompt);
 
         String summary = response.text();
 
         if (summary == null || summary.isBlank()) {
             throw new IllegalStateException(
-                    "AI could not generate a resume summary."
+                    "AI could not generate a resume summary. "
+                    + "Please try again."
             );
         }
 
         return summary.trim();
     }
 
-    // New AI Project Description Improver
+    // Retry only temporary service-unavailable errors
+    private GenerateContentResponse generateResumeSummaryWithRetry(
+            String prompt) {
+
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+
+            try {
+                return geminiClient.models.generateContent(
+                        "gemini-flash-latest",
+                        prompt,
+                        null
+                );
+
+            } catch (RuntimeException ex) {
+
+                boolean temporaryError = isTemporaryUnavailable(ex);
+
+                if (!temporaryError || attempt == MAX_RETRIES) {
+                    throw new IllegalStateException(
+                            temporaryError
+                                    ? "Gemini AI is temporarily busy. "
+                                      + "Please try again in a little while."
+                                    : "Unable to generate the AI resume summary. "
+                                      + "Please check your AI configuration "
+                                      + "and try again.",
+                            ex
+                    );
+                }
+
+                long delay = INITIAL_RETRY_DELAY_MS
+                        * (1L << (attempt - 1));
+
+                try {
+                    Thread.sleep(delay);
+
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+
+                    throw new IllegalStateException(
+                            "AI request was interrupted. Please try again.",
+                            interruptedException
+                    );
+                }
+            }
+        }
+
+        throw new IllegalStateException(
+                "Unable to generate the resume summary. Please try again."
+        );
+    }
+
+    // Identify temporary 503 / UNAVAILABLE errors
+    private boolean isTemporaryUnavailable(Throwable error) {
+
+        Throwable current = error;
+
+        while (current != null) {
+
+            String message = current.getMessage();
+
+            if (message != null) {
+                String lowerMessage = message.toLowerCase();
+
+                if (lowerMessage.contains("503")
+                        || lowerMessage.contains("unavailable")
+                        || lowerMessage.contains("high demand")) {
+                    return true;
+                }
+            }
+
+            current = current.getCause();
+        }
+
+        return false;
+    }
+
+    // Existing AI Project Description Improver
     public String improveProjectDescription(
             ProjectDescriptionRequest request) {
 
